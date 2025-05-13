@@ -17,9 +17,7 @@ interface Metadata extends NextMetadata {
 }
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import Header from "../components/ui/Header";
-import Footer from "../components/ui/Footer";
-import { ThemeProvider } from "@/components/theme/theme-provider";
+import { Header, Footer, ThemeProvider } from "@/index"
 
 // Fonts
 const geistSans = Geist( {
@@ -42,14 +40,14 @@ export const metadata: Metadata = {
     title: "DostifyApp - Private and Secure Chat",
     description: "DostifyApp is a secure and anonymous chat app for one-time private conversations. Chat in real-time with end-to-end encryption.",
     url: "",  // Replace with your actual domain
-    images: [{ url: "/android-chrome-192x192.png" } as { url: string }], // Explicitly define 'images' as an array of objects with 'url'
+    images: [{ url: "/public/logo-md.png" } as { url: string }], // Explicitly define 'images' as an array of objects with 'url'
     siteName: "DostifyApp",
   },
   twitter: {
     card: "summary_large_image",  // Large image card for Twitter
     title: "DostifyApp - Private and Secure Chat",
     description: "DostifyApp is a secure and anonymous chat app for one-time private conversations. Chat in real-time with end-to-end encryption.",
-    images: ["/android-chrome-192x192.png"], // Use the same image for Twitter
+    images: ["/public/logo-md.png"], // Use the same image for Twitter
   },
   robots: {
     index: true,              // Allow search engines to index the site
@@ -97,15 +95,15 @@ export default function RootLayout( {
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <ThemeProvider
-            attribute="class"
-            defaultTheme="system"
-            enableSystem
-            disableTransitionOnChange
-          >
-            <Header />
-        <main className="flex-grow">{children}</main>
-        <Footer />
-          </ThemeProvider>
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <Header />
+          <main className="flex-grow">{children}</main>
+          <Footer />
+        </ThemeProvider>
       </body>
     </html>
   );

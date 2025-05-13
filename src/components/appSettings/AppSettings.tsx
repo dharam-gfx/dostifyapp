@@ -1,8 +1,6 @@
-import React from 'react'
-import { Modal } from '../index'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AudioLines, GlobeLock, PaintRoller, Settings } from "lucide-react";
-import {ModeToggle , Privacy, SoundSetting} from '../index';
+import {ModeToggle , Privacy, SoundSetting, Modal} from '@/index';
 
 const AppSettings = () => {
     const tabs = [
