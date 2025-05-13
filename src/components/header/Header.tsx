@@ -1,5 +1,5 @@
 import Image from 'next/image'
-import { AppSettings } from '@/index'
+import { AppSettings } from '@/components/index'
 import Link from 'next/link'
 
 const Header = () => {

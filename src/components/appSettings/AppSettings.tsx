@@ -1,29 +1,40 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AudioLines, GlobeLock, PaintRoller, Settings } from "lucide-react";
-import {ModeToggle , Privacy, SoundSetting, Modal} from '@/index';
+import { ModeToggle, Privacy, SoundSetting, Modal } from '@/components/index';
+import { LucideIcon } from "lucide-react";
+import { FC } from "react";
+
+interface TabItem {
+    name: string;
+    value: string;
+    icon: LucideIcon;
+    content?: FC;
+    className?: string;
+}
+
+const tabs: TabItem[] = [
+    {
+        name: "Appearance",
+        value: "appearance",
+        icon: PaintRoller,
+        content: ModeToggle,
+    },
+    {
+        name: "Sound",
+        value: "sound",
+        icon: AudioLines,
+        content: SoundSetting,
+    },
+    {
+        name: "Privacy",
+        value: "privacy",
+        className: "h-[400px] overflow-y-auto",
+        icon: GlobeLock,
+        content: Privacy,
+    },
+];
 
 const AppSettings = () => {
-    const tabs = [
-        {
-            name: "Appearance",
-            value: "appearance",
-            icon: PaintRoller,
-            content: ModeToggle,
-        },
-        {
-            name: "Sound",
-            value: "sound",
-            icon: AudioLines,
-            content:SoundSetting
-        },
-        {
-            name: "Privacy",
-            value: "privacy",
-            className: "h-[400px] overflow-y-auto",
-            icon: GlobeLock,
-            content:Privacy
-        },
-    ];
     return (
         <>
             <Modal title="Settings" description="Customize your chat experience">

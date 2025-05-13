@@ -17,7 +17,7 @@ interface Metadata extends NextMetadata {
 }
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { Header, Footer, ThemeProvider } from "@/index"
+import { Header, Footer, ThemeProvider } from "@/components/index"
 
 // Fonts
 const geistSans = Geist( {
