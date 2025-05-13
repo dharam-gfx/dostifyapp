@@ -31,7 +31,7 @@ const geistMono = Geist_Mono( {
 } );
 
 export const metadata: Metadata = {
-  metadataBase: new URL( "http://localhost:3000" ),
+  // metadataBase: new URL( "http://localhost:3000" ),
   title: "DostifyApp - Private and Secure Chat",
   description: "DostifyApp is a secure and anonymous chat app for one-time private conversations. Chat in real-time with end-to-end encryption.",
   keywords: ["anonymous chat", "real-time messaging", "end-to-end encryption", "private chat", "secure messaging", "chat app", "DostifyApp"], // Ensure keywords is not null or undefined

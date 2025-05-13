@@ -6,6 +6,7 @@ import { AudioLines, Volume2, VolumeOff } from "lucide-react"
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState, AppDispatch } from '@/store/strore'
 import { playSound, toggleSoundHandler } from '@/features/soundSlice'
+import { toast } from "sonner";
 // Extend the Window interface to include webkitAudioContext
 declare global {
     interface Window {
@@ -14,16 +15,23 @@ declare global {
 }
 
 const SoundSetting = () => {
-    const dispatch = useDispatch<AppDispatch>()
-    const isSoundEnabled = useSelector((state: RootState) => state.soundPreference.value)
+    const dispatch = useDispatch<AppDispatch>();
+    const isSoundEnabled = useSelector((state: RootState) => state.soundPreference.value);
 
     const toggleSound = () => {
-        dispatch(toggleSoundHandler())
-    }
+        dispatch(toggleSoundHandler());
+        toast(`Notifications ${isSoundEnabled ? 'muted' : 'enabled'}`, {
+            description: `You will${isSoundEnabled ? ' not' : ''} hear notification sounds.`,
+            action: {
+                label: "Undo",
+                onClick: () => dispatch(toggleSoundHandler()),
+            },
+        });
+    };
 
     const testSound = () => {
-        dispatch(playSound())
-    }
+        dispatch(playSound());
+    };
 
     return (
         <div className="space-y-4">
@@ -59,7 +67,7 @@ const SoundSetting = () => {
                 </div>
             </div>
         </div>
-    )
-}
+    );
+};
 
 export default SoundSetting
