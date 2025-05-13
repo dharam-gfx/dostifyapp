@@ -17,7 +17,7 @@ interface Metadata extends NextMetadata {
 }
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { Header, Footer, ThemeProvider } from "@/components/index"
+import ClientLayout from "./ClientLayout";
 
 // Fonts
 const geistSans = Geist( {
@@ -94,16 +94,7 @@ export default function RootLayout( {
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          <Header />
-          <main className="flex-grow">{children}</main>
-          <Footer />
-        </ThemeProvider>
+        <ClientLayout>{children}</ClientLayout>
       </body>
     </html>
   );
