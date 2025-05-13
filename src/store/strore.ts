@@ -1,10 +1,10 @@
 // /store/store.ts
 import { configureStore } from '@reduxjs/toolkit';
-import soundReducer from '../features/soundSlice';
+import soundPreferenceReducer from '../features/soundSlice';
 
 export const store = configureStore( {
     reducer: {
-        sound: soundReducer,
+        soundPreference: soundPreferenceReducer,
     },
 } );
 

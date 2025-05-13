@@ -1,9 +1,11 @@
 "use client"
 
-import { useEffect, useState } from "react"
 import { Button } from "../ui/button"
 import { AudioLines, Volume2, VolumeOff } from "lucide-react"
 
+import { useSelector, useDispatch } from 'react-redux';
+import { RootState, AppDispatch } from '@/store/strore'
+import { playSound, toggleSoundHandler } from '@/features/soundSlice'
 // Extend the Window interface to include webkitAudioContext
 declare global {
     interface Window {
@@ -12,40 +14,15 @@ declare global {
 }
 
 const SoundSetting = () => {
-    const [isSoundEnabled, setSoundEnabled] = useState( false )
-
-    useEffect( () => {
-        const stored = localStorage.getItem( "sound-enabled" )
-        if ( stored !== null ) setSoundEnabled( JSON.parse( stored ) )
-    }, [] )
+    const dispatch = useDispatch<AppDispatch>()
+    const isSoundEnabled = useSelector((state: RootState) => state.soundPreference.value)
 
     const toggleSound = () => {
-        const newState = !isSoundEnabled
-        setSoundEnabled( newState )
-        localStorage.setItem( "sound-enabled", JSON.stringify( newState ) )
+        dispatch(toggleSoundHandler())
     }
 
     const testSound = () => {
-        if (!isSoundEnabled) return;
-        const audio = new Audio("/sounds/notification-sound.mp3");
-        audio.onerror = () => {
-            // Fallback to default sound (browser beep)
-            try {
-                const ctx = new (window.AudioContext || window.webkitAudioContext)();
-                const oscillator = ctx.createOscillator();
-                oscillator.type = "sine";
-                oscillator.frequency.value = 440;
-                oscillator.connect(ctx.destination);
-                oscillator.start();
-                setTimeout(() => {
-                    oscillator.stop();
-                    ctx.close();
-                }, 200);
-            } catch (e) {
-                console.error("AudioContext not supported", e);
-            }
-        };
-        audio.play();
+        dispatch(playSound())
     }
 
     return (
