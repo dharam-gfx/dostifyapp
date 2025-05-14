@@ -65,6 +65,11 @@ export interface ChatControlsProps {
 }
 
 /**
+ * Connection health status type
+ */
+export type ConnectionHealthStatus = 'healthy' | 'connected' | 'disconnected';
+
+/**
  * Props for the ChatRoomHeader component
  */
 export interface ChatRoomHeaderProps {
@@ -73,6 +78,12 @@ export interface ChatRoomHeaderProps {
   
   /** Unique code for the chat room */
   chatCode?: string;
+
+  /** Whether the chat is connected */
+  isConnected?: boolean;
+  
+  /** More detailed connection health status */
+  connectionHealth?: ConnectionHealthStatus;
 }
 
 /**
@@ -104,6 +115,23 @@ export interface UsePusherChatOptions {
   
   /** Callback when typing status is received */
   onTypingStatusUpdate?: (userId: string, isTyping: boolean) => void;
+}
+
+/**
+ * Connection information object returned by usePusherChat
+ */
+export interface ConnectionInfo {
+  /** Whether the connection is established */
+  isConnected: boolean;
+  
+  /** Whether the channel subscription is complete */
+  isFullySubscribed: boolean;
+  
+  /** Whether client events are supported on this connection */
+  clientEventsSupported: boolean;
+  
+  /** The current Pusher connection state */
+  connectionState: string;
 }
 
 /**

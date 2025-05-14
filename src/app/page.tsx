@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { ChevronRight, ShieldCheck } from "lucide-react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Input } from "@/components/ui/Input";
+import { Input } from "@/components/ui/input";
 import { nanoid } from "nanoid";
 
 function Home() {
