@@ -1,8 +1,12 @@
 import React from "react";
 import { Lock, Users } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { ChatRoomHeaderProps } from "@/types/chat";
 
-const ChatRoomHeader = () => {
+const ChatRoomHeader: React.FC<ChatRoomHeaderProps> = ({ 
+    userCount = 1, 
+    chatCode = "Chat" 
+}) => {
     return (
         <div className="flex w-full items-center justify-between py-4">
             <div className="flex-1 flex justify-center items-center gap-4">
@@ -18,7 +22,7 @@ const ChatRoomHeader = () => {
                                     <span
                                         className="inline-flex items-center justify-center px-2 py-0.5 font-medium w-fit whitespace-nowrap shrink-0 text-sm m-0 text-muted-foreground hover:text-primary"
                                     >
-                                        IuTirP
+                                        {chatCode}
                                     </span>
                                 </div>
                             </TooltipTrigger>
@@ -33,7 +37,7 @@ const ChatRoomHeader = () => {
                             <TooltipTrigger asChild>
                                 <div className="flex items-center text-xs text-muted-foreground z-20 cursor-pointer">
                                     <Users className="size-4 mr-2" />
-                                    <span className="text-sm">1</span>
+                                    <span className="text-sm">{userCount}</span>
                                 </div>
                             </TooltipTrigger>
                             <TooltipContent>

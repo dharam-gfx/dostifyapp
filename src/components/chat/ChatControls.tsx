@@ -2,12 +2,7 @@ import React from "react";
 import { Paperclip, Smile, Image as LunarImage, Video, Mic, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-
-interface ChatControlsProps {
-  input: string;
-  setInput: (val: string) => void;
-  onSend: () => void;
-}
+import { ChatControlsProps } from "@/types/chat";
 
 const ChatControls: React.FC<ChatControlsProps> = ({ input, setInput, onSend }) => {
   return (

@@ -1,14 +1,15 @@
 import React from "react";
 import { User } from "lucide-react";
+import { MessageBubbleProps } from "@/types/chat";
 
-export const SystemMessage: React.FC<{ message: string; timestamp: string }> = ({ message, timestamp }) => (
+export const SystemMessage: React.FC<MessageBubbleProps> = ({ message, timestamp }) => (
   <div className="system-message text-center text-xs text-gray-500 my-3">
     {message}{' '}
     <span className="timestamp text-[10px] text-gray-400">{timestamp}</span>
   </div>
 );
 
-export const IncomingMessage: React.FC<{ message: string; timestamp: string }> = ({ message, timestamp }) => (
+export const IncomingMessage: React.FC<MessageBubbleProps> = ({ message, timestamp }) => (
   <div className="flex mb-1">
     <div className="w-6 h-6 rounded-full flex items-center justify-center mr-1 bg-gray-200 relative">
       {/* Light mode circle */}
@@ -24,7 +25,7 @@ export const IncomingMessage: React.FC<{ message: string; timestamp: string }> =
   </div>
 );
 
-export const OutgoingMessage: React.FC<{ message: string; timestamp: string }> = ({ message, timestamp }) => (
+export const OutgoingMessage: React.FC<MessageBubbleProps> = ({ message, timestamp }) => (
   <div className="flex justify-end mb-1">
     <div className="flex max-w-56 bg-rose-500 text-white rounded-md p-2 gap-2 shadow text-xs">
       <div>

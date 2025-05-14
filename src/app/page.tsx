@@ -6,6 +6,7 @@ import { ChevronRight, ShieldCheck } from "lucide-react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/Input";
+import { nanoid } from "nanoid";
 
 function Home() {
   const [chatCode, setChatCode] = useState("");
@@ -16,10 +17,14 @@ function Home() {
   };
 
   const handleJoinChat = () => {
-    console.log("Joining chat with:", chatCode);
     if (chatCode.trim()) {
       router.push(`/chat/${chatCode}`);
     }
+  };
+
+  const handleStartNewChat = () => {
+    const newCode = nanoid(8);
+    router.push(`/chat/${newCode}`);
   };
 
   return (
@@ -67,7 +72,10 @@ function Home() {
           </div>
 
           {/* Start new chat button */}
-          <Button className="w-full h-11 rounded-full bg-zinc-950 text-white dark:bg-white dark:text-zinc-950 hover:bg-zinc-900 dark:hover:bg-zinc-100">
+          <Button
+            className="w-full h-11 rounded-full bg-zinc-950 text-white dark:bg-white dark:text-zinc-950 hover:bg-zinc-900 dark:hover:bg-zinc-100"
+            onClick={handleStartNewChat}
+          >
             <ShieldCheck size={18} /> Start new private chat
           </Button>
         </div>

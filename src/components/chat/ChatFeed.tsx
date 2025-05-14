@@ -1,19 +1,7 @@
 "use client";
-import { useEffect, type FC, type RefObject } from "react";
+import { useEffect, type FC } from "react";
 import { SystemMessage, IncomingMessage, OutgoingMessage } from "./MessageBubble";
-
-interface ChatMessage {
-  type: string;
-  sender?: string;
-  message: string;
-  timestamp: string;
-  isSent?: boolean;
-}
-
-interface ChatFeedProps {
-  messages: ChatMessage[];
-  messagesEndRef: RefObject<HTMLDivElement | null>;
-}
+import { ChatFeedProps } from "@/types/chat";
 
 const ChatFeed: FC<ChatFeedProps> = ({ messages, messagesEndRef }) => {
   useEffect(() => {
