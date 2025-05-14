@@ -7,9 +7,10 @@ interface ChatControlsProps {
   input: string;
   setInput: (val: string) => void;
   onSend: () => void;
+  isConnected?: boolean;
 }
 
-const ChatControls: React.FC<ChatControlsProps> = ({ input, setInput, onSend }) => {
+const ChatControls: React.FC<ChatControlsProps> = ({ input, setInput, onSend, isConnected = true }) => {
   return (
     <div className="fixed inset-x-0 bottom-0 z-40 mx-auto w-full max-w-2xl">
       <div className="relative order-2 px-2 sm:px-0 pb-5 md:order-1">
@@ -95,14 +96,13 @@ const ChatControls: React.FC<ChatControlsProps> = ({ input, setInput, onSend }) 
               >
                 <Mic className="size-4" />
               </Button>
-              {/* Send */}
-              <Button
+              {/* Send */}              <Button
                 type="button"
                 size="icon"
                 className="size-8 rounded-full bg-primary text-primary-foreground hover:bg-primary/90"
                 aria-label="Send message"
                 onClick={onSend}
-                disabled={!input.trim()}
+                disabled={!input.trim() || !isConnected}
               >
                 <Send className="size-4" />
               </Button>
