@@ -1,7 +1,6 @@
-// src/hooks/useSocket.ts
-import { createMessageTimestamp } from '@/utils/dateUtils';
 import { useEffect, useRef, useState } from 'react';
 import { io, Socket } from 'socket.io-client';
+import { createMessageTimestamp } from '@/utils/dateUtils';
 
 interface UseSocketOptions {
     autoConnect?: boolean;
@@ -11,25 +10,39 @@ interface UseSocketOptions {
 }
 
 interface ChatMessage {
-    type: string;
+    type: 'system' | 'text';
     sender?: string;
     message: string;
     timestamp: string;
     isSent?: boolean;
 }
 
-export default function useSocket(roomId: string | null, options: UseSocketOptions = {}) {
+// Generate or get a unique user id for this browser
+function getOrCreateUserId() {
+    let userId = localStorage.getItem('dostify_user_id');
+    if (!userId) {
+        userId = crypto.randomUUID();
+        localStorage.setItem('dostify_user_id', userId);
+    }
+    return userId;
+}
+
+export default function useSocket(
+    roomId: string | null,
+    options: UseSocketOptions = {}
+) {
     const socketRef = useRef<Socket | null>(null);
     const [isConnected, setIsConnected] = useState(false);
     const [messages, setMessages] = useState<ChatMessage[]>([]);
     const [connectionError, setConnectionError] = useState<string | null>(null);
+    const [userCount, setUserCount] = useState<number>(0);
 
     const defaultOptions = {
         autoConnect: true,
         reconnectionAttempts: 5,
         reconnectionDelay: 1000,
         timeout: 10000,
-        ...options
+        ...options,
     };
 
     useEffect(() => {
@@ -38,16 +51,12 @@ export default function useSocket(roomId: string | null, options: UseSocketOptio
             return;
         }
 
+        const userId = getOrCreateUserId();
+
         const initSocket = async () => {
             try {
-                console.log(`[Socket] Initializing connection for room ${roomId}...`);
-
-                const response = await fetch('/api/socket');
-                const data = await response.json();
-                console.log('[Socket] Server status:', data);
-
-                const socketURL = `http://${window.location.hostname}:3002`;
-                console.log(`[Socket] Connecting to ${socketURL}`);
+                await fetch('/api/socket');
+                const socketURL = `http://${window.location.hostname}:3003`;
 
                 const socketInstance = io(socketURL, {
                     reconnectionAttempts: defaultOptions.reconnectionAttempts,
@@ -61,34 +70,48 @@ export default function useSocket(roomId: string | null, options: UseSocketOptio
                 socketRef.current = socketInstance;
 
                 socketInstance.on('connect', () => {
-                    console.log(`[Socket] Connected with ID: ${socketInstance.id}`);
                     setIsConnected(true);
                     setConnectionError(null);
+                    // Send userId when joining room
+                    socketInstance.emit('joinRoom', { roomId, userId });
+                });
 
-                    console.log(`[Socket] Joining room: ${roomId}`);
-                    socketInstance.emit('joinRoom', roomId);
+                socketInstance.on('chatMessage', ({ type, sender, message, timestamp }) => {
+                    // Ignore messages sent by myself
+                    if (sender && sender === socketRef.current?.id) return;
+                    // Prevent duplicate messages (by sender+timestamp+message)
+                    setMessages((prev) => {
+                        if (prev.some(m => m.sender === sender && m.timestamp === timestamp && m.message === message)) {
+                            return prev;
+                        }
+                        return [
+                            ...prev,
+                            {
+                                type: type || 'text',
+                                sender: sender ?? 'user',
+                                message,
+                                timestamp: timestamp ?? createMessageTimestamp(),
+                                isSent: false,
+                            },
+                        ];
+                    });
+                });
+
+                socketInstance.on('userCount', (count: number) => {
+                    console.log(`User count event received: ${count}`);
+                    setUserCount(count);
+                    console.log(`User count state updated: ${count}`);
                 });
 
                 socketInstance.on('connect_error', (err) => {
-                    console.error('[Socket] Connection error:', err);
                     setConnectionError(`Connection error: ${err.message}`);
                     setIsConnected(false);
                 });
 
-                socketInstance.on('chatMessage', ({ type, sender, message, timestamp }) => {
-                    console.log('[Socket] Received message:', { type, sender, message, timestamp });
-                    setMessages((prev) => [
-                        ...prev,
-                        { type, sender :"user", message, timestamp: createMessageTimestamp(), isSent: false }
-                    ]);
-                });
-
-                socketInstance.on('disconnect', (reason) => {
-                    console.log('[Socket] Disconnected:', reason);
+                socketInstance.on('disconnect', () => {
                     setIsConnected(false);
                 });
             } catch (error) {
-                console.error("[Socket] Initialization error:", error);
                 setConnectionError(`Socket error: ${(error as Error).message}`);
             }
         };
@@ -96,43 +119,31 @@ export default function useSocket(roomId: string | null, options: UseSocketOptio
         initSocket();
 
         return () => {
-            console.log('[Socket] Cleaning up connection');
             if (socketRef.current) {
                 socketRef.current.disconnect();
                 socketRef.current = null;
             }
             setIsConnected(false);
         };
-    }, [roomId]);
+    }, [roomId, defaultOptions.autoConnect, defaultOptions.reconnectionAttempts, defaultOptions.reconnectionDelay, defaultOptions.timeout]);
 
     const sendMessage = (message: string) => {
         if (!message.trim() || !socketRef.current || !isConnected || !roomId) {
-            console.log('[Socket] Cannot send message:', {
-                hasMessage: Boolean(message.trim()),
-                hasSocket: Boolean(socketRef.current),
-                isConnected,
-                hasRoomId: Boolean(roomId)
-            });
             return false;
         }
-
         try {
             const timestamp = createMessageTimestamp();
-            console.log(`[Socket] Sending message to room ${roomId}:`, message);
-
             const newMessage: ChatMessage = {
                 type: 'text',
                 sender: 'you',
                 message,
                 timestamp,
-                isSent: true
+                isSent: true,
             };
             setMessages((prev) => [...prev, newMessage]);
-
             socketRef.current.emit('chatMessage', { roomId, message, timestamp });
             return true;
         } catch (error) {
-            console.error('[Socket] Error sending message:', error);
             setConnectionError(`Error sending: ${(error as Error).message}`);
             return false;
         }
@@ -144,6 +155,7 @@ export default function useSocket(roomId: string | null, options: UseSocketOptio
         connectionError,
         messages,
         sendMessage,
-        setMessages
+        setMessages,
+        userCount,
     };
 }

@@ -1,6 +1,7 @@
-"use client";
-import React, { useState, useRef, useEffect, useMemo } from "react";
-import { useSearchParams } from "next/navigation";
+'use client';
+
+import React, { useState, useRef, useEffect } from "react";
+import { useParams, useSearchParams } from "next/navigation";
 import useSocket from "@/hooks/useSocket";
 
 import ChatFeed from "@/components/chat/ChatFeed";
@@ -22,6 +23,7 @@ const Page = () => {
     sendMessage,
     isConnected,
     connectionError,
+    userCount
   } = useSocket(roomId);
 
   const [input, setInput] = useState("");
@@ -32,15 +34,20 @@ const Page = () => {
 
   const handleSend = () => {
     if (input.trim() && isConnected) {
-      const sent = sendMessage(input);
-      if (sent) setInput("");
+      sendMessage(input);
+      setInput("");
     }
   };
 
   return (
     <div className="flex flex-col h-screen w-full items-center">
       <div className="flex flex-col h-full w-full max-w-2xl">
-        <ChatRoomHeader roomId={roomId} isConnected={isConnected} />
+        <ChatRoomHeader
+          roomId={roomId}
+          isConnected={isConnected}
+          userCount={userCount}
+          connectionError={connectionError}
+        />
         <div className="flex-1 overflow-y-auto mb-30">
           <ChatFeed messages={messages} messagesEndRef={messagesEndRef} />
         </div>
@@ -52,7 +59,6 @@ const Page = () => {
             isConnected={isConnected}
           />
         </div>
-
       </div>
     </div>
   );

@@ -1,13 +1,18 @@
 "use client";
+
 import { useEffect, type FC, type RefObject } from "react";
-import { SystemMessage, IncomingMessage, OutgoingMessage } from "./MessageBubble";
+import {
+  SystemMessage,
+  IncomingMessage,
+  OutgoingMessage
+} from "./MessageBubble";
 
 interface ChatMessage {
-  type: string;
+  type: "incoming" | "outgoing" | "system";
   sender?: string;
   message: string;
   timestamp: string;
-  isSent?: boolean;
+  isSent?: boolean; // Optional fallback, primarily for outgoing
 }
 
 interface ChatFeedProps {
@@ -23,15 +28,35 @@ const ChatFeed: FC<ChatFeedProps> = ({ messages, messagesEndRef }) => {
   return (
     <div className="h-screen overflow-y-auto p-2 pb-24 flex flex-col justify-end">
       <div>
-        {messages.map((chat, index) =>
-          chat.type === 'system' ? (
-            <SystemMessage key={index} message={chat.message} timestamp={chat.timestamp} />
-          ) : !chat.isSent ? (
-            <IncomingMessage key={index} message={chat.message} timestamp={chat.timestamp} />
+        {messages.map((chat, index) => {
+          if (chat.type === "system") {
+            return (
+              <SystemMessage
+                key={index}
+                message={
+                  chat.sender
+                    ? `${chat.sender} ${chat.message}`
+                    : chat.message
+                }
+                timestamp={chat.timestamp}
+              />
+            );
+          }
+
+          return chat.type === "incoming" || !chat.isSent ? (
+            <IncomingMessage
+              key={index}
+              message={chat.message}
+              timestamp={chat.timestamp}
+            />
           ) : (
-            <OutgoingMessage key={index} message={chat.message} timestamp={chat.timestamp} />
-          )
-        )}
+            <OutgoingMessage
+              key={index}
+              message={chat.message}
+              timestamp={chat.timestamp}
+            />
+          );
+        })}
         <div ref={messagesEndRef} />
       </div>
     </div>
