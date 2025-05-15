@@ -46,6 +46,11 @@ function Home() {
             <Input
               value={chatCode}
               onChange={handleInputChange}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  handleJoinChat();
+                }
+              } }
               placeholder="Enter chat code or link to join..."
               className="h-11 pl-4 pr-12 rounded-full bg-zinc-100 dark:bg-zinc-800 border-zinc-200 dark:border-zinc-700 focus-visible:ring-1 focus-visible:ring-zinc-600"
             />
