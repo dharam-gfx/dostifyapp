@@ -5,9 +5,10 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 interface ChatRoomHeaderProps {
     roomId?: string;
     isConnected?: boolean;
+    userCount?: number;
 }
 
-const ChatRoomHeader: React.FC<ChatRoomHeaderProps> = ( { roomId = "xxxxx", isConnected } ) => {
+const ChatRoomHeader: React.FC<ChatRoomHeaderProps> = ( { roomId, isConnected, userCount } ) => {
     return (
         <div className="flex w-full items-center justify-between py-4">
             <div className="flex-1 flex justify-center items-center gap-4">
@@ -70,7 +71,7 @@ const ChatRoomHeader: React.FC<ChatRoomHeaderProps> = ( { roomId = "xxxxx", isCo
                             <TooltipTrigger asChild>
                                 <div className="flex items-center text-xs text-muted-foreground z-20 cursor-pointer">
                                     <Users className="size-4 mr-2" />
-                                    <span className="text-sm">1</span>
+                                    <span className="text-sm">{userCount}</span>
                                 </div>
                             </TooltipTrigger>
                             <TooltipContent>
