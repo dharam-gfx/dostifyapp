@@ -16,13 +16,19 @@ const io = new Server( server, {
     }
 } );
 
-app.use( cors );
+app.use( cors() );
 app.use( express.json() );
 
 const PORT = process.env.PORT || 5000;
 
+// Initialize chat room data structures first
 const chatRooms = {};
 const typingUsers = {}; // Track typing users per room
+
+// Import and use API routes - after chatRooms is initialized
+import apiRouter from './routes/api.js';
+const apiRoutes = apiRouter(chatRooms);
+app.use('/api', apiRoutes);
 
 // Initialize chat rooms
 const initializeChatRoom = ( roomId ) => {

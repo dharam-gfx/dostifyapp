@@ -15,11 +15,22 @@ function Home() {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setChatCode(e.target.value);
   };
-
-  const handleJoinChat = () => {
-    console.log("Joining chat with:", chatCode);
+  const handleJoinChat = async () => {
+    console.log("Checking room:", chatCode);
     if (chatCode.trim()) {
-      router.push(`/chat/${chatCode}`);
+      try {
+        const response = await fetch(`http://localhost:5000/api/check-room/${chatCode}`);
+        const data = await response.json();
+        
+        if (data.exists) {
+          router.push(`/chat/${chatCode}`);
+        } else {
+          alert("This chat room doesn't exist. Please check the code or create a new chat.");
+        }
+      } catch (error) {
+        console.error("Error checking room:", error);
+        alert("Unable to check room status. Please try again.");
+      }
     }
   };
   const handleStartNewChat = () => {
