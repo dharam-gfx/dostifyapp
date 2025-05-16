@@ -16,10 +16,9 @@ function Home() {
     setChatCode(e.target.value);
   };
   const handleJoinChat = async () => {
-    console.log("Checking room:", chatCode);
-    if (chatCode.trim()) {
+    console.log("Checking room:", chatCode);    if (chatCode.trim()) {
       try {
-        const response = await fetch(`http://localhost:5000/api/check-room/${chatCode}`);
+        const response = await fetch(`/api/check-room/${chatCode}`);
         const data = await response.json();
         
         if (data.exists) {

@@ -12,12 +12,16 @@ const server = http.createServer(app);
 // Setup Socket.IO with CORS
 const io = new Server(server, {
     cors: {
-        origin: "*",
+        origin: "http://localhost:3000", // Your Next.js frontend
         methods: ["GET", "POST"],
+        credentials: true // Allow credentials
     }
 });
 
-app.use(cors());
+app.use(cors({
+    origin: "http://localhost:3000", // Your Next.js frontend
+    credentials: true // Allow credentials
+}));
 app.use(express.json());
 
 const PORT = process.env.PORT || 5000;

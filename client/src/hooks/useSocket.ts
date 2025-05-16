@@ -3,7 +3,7 @@ import { createMessageTimestamp } from "@/utils/dateUtils";
 import { useEffect, useState } from "react";
 import { io, Socket } from "socket.io-client";
 
-const SERVER_URL = "http://localhost:5000"; // Your server's URL
+const SERVER_URL = process.env.NEXT_PUBLIC_SERVER_URL || "http://localhost:5000"; // Use env variable for server URL
 
 // Define ChatMessage type
 export type ChatMessage = {
