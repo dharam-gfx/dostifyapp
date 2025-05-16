@@ -5,13 +5,15 @@ import { cn } from "@/lib/utils";
 
 interface ChatControlsProps {
   input: string;
-  setInput: (val: string) => void;
+  setInput: ( val: string ) => void;
   onSend: () => void;
   isConnected?: boolean;
-  sendTyping?: (isTyping: boolean) => void;
+  sendTyping?: ( isTyping: boolean ) => void;
 }
 
-const ChatControls: React.FC<ChatControlsProps> = ({ input, setInput, onSend, sendTyping, isConnected = true }) => {
+
+let typingTimeout: NodeJS.Timeout | null = null;
+const ChatControls: React.FC<ChatControlsProps> = ( { input, setInput, onSend, sendTyping, isConnected = true } ) => {
   return (
     <div className="fixed inset-x-0 bottom-0 z-40 mx-auto w-full max-w-2xl">
       <div className="relative order-2 px-2 sm:px-0 pb-5 md:order-1">
@@ -27,18 +29,37 @@ const ChatControls: React.FC<ChatControlsProps> = ({ input, setInput, onSend, se
             style={{ height: 44 }}
             value={input}
             onChange={e => {
-              setInput(e.target.value);
-              if (e.target.value.length > 0) {
-                sendTyping?.(true);
+              setInput( e.target.value );
+
+              // Send typing immediately
+              if ( e.target.value.length > 0 ) {
+                sendTyping?.( true );
               } else {
-                sendTyping?.(false);
+                sendTyping?.( false );
               }
+
+              // Clear previous timeout
+              if ( typingTimeout ) {
+                clearTimeout( typingTimeout );
+              }
+
+              // Set timeout to stop typing after 2s of inactivity
+              typingTimeout = setTimeout( () => {
+                sendTyping?.( false );
+                typingTimeout = null;
+              }, 2000 );
             }}
             onKeyDown={e => {
-              if (e.key === "Enter" && !e.shiftKey) {
+              if ( e.key === "Enter" && !e.shiftKey ) {
                 e.preventDefault();
                 onSend();
-                sendTyping?.(false);
+                sendTyping?.( false );
+
+                // Clear typing timeout on send
+                if ( typingTimeout ) {
+                  clearTimeout( typingTimeout );
+                  typingTimeout = null;
+                }
               }
             }}
           />

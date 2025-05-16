@@ -59,8 +59,9 @@ io.on( 'connection', ( socket ) => {
         socket.emit( 'joined-room', { userId, users: usersArr } );
         socket.to( roomId ).emit( 'user-joined', { userId, users: usersArr } );
 
-        socket.on( 'send-message', ( { encryptedData , userName} ) => {
-            socket.to( roomId ).emit( 'receive-message', { encryptedData, userName } );
+        socket.on( 'send-message', ( { encryptedData , userId} ) => {
+            console.log( `Message from ${userId} in room ${roomId}:`, encryptedData );
+            socket.to( roomId ).emit( 'receive-message', { encryptedData, userId } );
         } );
 
         socket.on( 'user-typing', ( { userId, isTyping } ) => {

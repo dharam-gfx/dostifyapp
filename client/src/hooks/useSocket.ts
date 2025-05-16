@@ -31,6 +31,7 @@ export function useSocket( roomId: string , userName: string = "" ) {
         socketIo.emit( "join-room", { roomId, userName } );
 
         socketIo.on( "joined-room", ( { userId, users } ) => {
+            console.log( "User joined:", userId, users );
             setUserId( userId );
             setIsConnected(true);
             setUsers(users || []);
@@ -80,6 +81,7 @@ export function useSocket( roomId: string , userName: string = "" ) {
                     isSent: leftUser === userId
                 }
             ]));
+            console.log( "User left:", leftUser, "sss",userId );
         });
 
         socketIo.on( "users-typing", ( { userIds } ) => {
@@ -87,14 +89,14 @@ export function useSocket( roomId: string , userName: string = "" ) {
             setUsersTyping(userIds.filter((id: string) => id !== socketIo.id));
         });
 
-        socketIo.on( "receive-message", ( { encryptedData, userName } ) => {
-            console.log( "Message received:", encryptedData , userName);
+        socketIo.on( "receive-message", ( { encryptedData, userId } ) => {
+            console.log( "Message received:", encryptedData , userId);
             // Add received message to messages array
             setMessages(prev => ([
                 ...prev,
                 {
                     type: 'user',
-                    sender: userName,
+                    sender: userId,
                     message: encryptedData,
                     timestamp: createMessageTimestamp(),
                     isSent: false
@@ -113,16 +115,16 @@ export function useSocket( roomId: string , userName: string = "" ) {
         };
     }, [roomId, userName] );
 
-    const sendMessage = ( encryptedData: string ) => {
+    const sendMessage = ( encryptedData: string, userId:string ) => {
         if ( socket ) {
-            console.log( "Sending message:", encryptedData, userName );
-            socket.emit( "send-message", { encryptedData , userName} );
+            console.log( "Sending message:", encryptedData, userId );
+            socket.emit( "send-message", { encryptedData , userId} );
             // Add sent message to messages array
             setMessages(prev => ([
                 ...prev,
                 {
                     type: 'user',
-                    sender: userName,
+                    sender: userId,
                     message: encryptedData,
                     timestamp: createMessageTimestamp(),
                     isSent: true

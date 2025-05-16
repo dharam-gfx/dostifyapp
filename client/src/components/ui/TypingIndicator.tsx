@@ -46,13 +46,13 @@ const TypingIndicator: React.FC<TypingIndicatorProps> = ({
           {otherUsers.map((id, index) => (
             <React.Fragment key={id}>
               <span className="font-semibold text-rose-600 dark:text-rose-400">
-                User-{id.substring(0, 4)}
+                {id.substring(0, 4)}
               </span>
               {index < otherUsers.length - 1 ? ', ' : ' and '}
             </React.Fragment>
           ))}
           <span className="font-semibold text-rose-600 dark:text-rose-400">
-            User-{lastUser.substring(0, 4)}
+            {lastUser.substring(0, 4)}
           </span>
           <span> are typing</span>
         </>

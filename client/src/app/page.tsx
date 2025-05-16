@@ -81,7 +81,7 @@ function Home() {
           {/* Start new chat button */}
           <Button className="w-full h-11 rounded-full bg-zinc-950 text-white dark:bg-white dark:text-zinc-950 hover:bg-zinc-900 dark:hover:bg-zinc-100"
            onClick={handleStartNewChat}
-           disabled={chatCode.trim()}
+           disabled={!!chatCode.trim()}
           >
             <ShieldCheck size={18} /> Start new private chat
           </Button>
