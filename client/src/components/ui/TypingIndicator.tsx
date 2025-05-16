@@ -31,7 +31,7 @@ const TypingIndicator: React.FC<TypingIndicatorProps> = ({
       return (
         <>
           <span className="font-semibold text-rose-600 dark:text-rose-400">
-            User-{typingUsers[0].substring(0, 4)}
+            {typingUsers[0].substring(0, 4)}
           </span>
           <span> is typing</span>
         </>

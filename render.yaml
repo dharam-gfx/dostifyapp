@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: dostify-server
+    env: node
+    buildCommand: cd server && npm install
+    startCommand: node index.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+  - type: web
+    name: dostify-client
+    env: node
+    buildCommand: cd client && npm install && npm run build
+    startCommand: npm start
+    envVars:
+      - key: NEXT_PUBLIC_API_URL
+        value: https://dostify-server.onrender.com

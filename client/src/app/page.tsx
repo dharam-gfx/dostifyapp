@@ -6,6 +6,7 @@ import { ChevronRight, ShieldCheck } from "lucide-react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
+import { nanoid } from "@reduxjs/toolkit";
 
 function Home() {
   const [chatCode, setChatCode] = useState("");
@@ -21,6 +22,12 @@ function Home() {
       router.push(`/chat/${chatCode}`);
     }
   };
+  const handleStartNewChat = () => {
+    const newChatCode = nanoid( 4 );
+    console.log("Starting new chat", newChatCode);
+    router.push(`/chat/${newChatCode}`);
+
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4">
@@ -72,7 +79,10 @@ function Home() {
           </div>
 
           {/* Start new chat button */}
-          <Button className="w-full h-11 rounded-full bg-zinc-950 text-white dark:bg-white dark:text-zinc-950 hover:bg-zinc-900 dark:hover:bg-zinc-100">
+          <Button className="w-full h-11 rounded-full bg-zinc-950 text-white dark:bg-white dark:text-zinc-950 hover:bg-zinc-900 dark:hover:bg-zinc-100"
+           onClick={handleStartNewChat}
+           disabled={chatCode.trim()}
+          >
             <ShieldCheck size={18} /> Start new private chat
           </Button>
         </div>

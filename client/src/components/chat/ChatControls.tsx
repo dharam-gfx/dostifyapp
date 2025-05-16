@@ -8,9 +8,10 @@ interface ChatControlsProps {
   setInput: (val: string) => void;
   onSend: () => void;
   isConnected?: boolean;
+  sendTyping?: (isTyping: boolean) => void;
 }
 
-const ChatControls: React.FC<ChatControlsProps> = ({ input, setInput, onSend, isConnected = true }) => {
+const ChatControls: React.FC<ChatControlsProps> = ({ input, setInput, onSend, sendTyping, isConnected = true }) => {
   return (
     <div className="fixed inset-x-0 bottom-0 z-40 mx-auto w-full max-w-2xl">
       <div className="relative order-2 px-2 sm:px-0 pb-5 md:order-1">
@@ -25,11 +26,19 @@ const ChatControls: React.FC<ChatControlsProps> = ({ input, setInput, onSend, is
             placeholder="Type your reply..."
             style={{ height: 44 }}
             value={input}
-            onChange={e => setInput(e.target.value)}
+            onChange={e => {
+              setInput(e.target.value);
+              if (e.target.value.length > 0) {
+                sendTyping?.(true);
+              } else {
+                sendTyping?.(false);
+              }
+            }}
             onKeyDown={e => {
               if (e.key === "Enter" && !e.shiftKey) {
                 e.preventDefault();
                 onSend();
+                sendTyping?.(false);
               }
             }}
           />

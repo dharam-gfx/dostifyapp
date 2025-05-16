@@ -25,11 +25,11 @@ const ChatFeed: FC<ChatFeedProps> = ({ messages, messagesEndRef }) => {
       <div>
         {messages.map((chat, index) =>
           chat.type === 'system' ? (
-            <SystemMessage key={index} message={chat.message} timestamp={chat.timestamp} />
+            <SystemMessage key={index} message={chat.message} timestamp={chat.timestamp}  />
           ) : !chat.isSent ? (
-            <IncomingMessage key={index} message={chat.message} timestamp={chat.timestamp} />
+            <IncomingMessage key={index} message={chat.message} timestamp={chat.timestamp} userName={chat.sender ?? "User"} />
           ) : (
-            <OutgoingMessage key={index} message={chat.message} timestamp={chat.timestamp} />
+            <OutgoingMessage key={index} message={chat.message} timestamp={chat.timestamp}  />
           )
         )}
         <div ref={messagesEndRef} />

@@ -1,0 +1,22 @@
+{
+  "name": "dostifyapp",
+  "version": "1.0.0",
+  "description": "DostifyApp is a secure and anonymous chat app for one-time private conversations. Chat in real-time with end-to-end encryption.",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js",
+    "build": "cd ../dist && npm run build"
+  },
+  "author": "Dharmendra Kumar",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^5.1.0",
+    "multer": "^1.4.5-lts.2",
+    "nanoid": "^5.1.5",
+    "nodemon": "^3.1.10",
+    "socket.io": "^4.8.1"
+  }
+}
