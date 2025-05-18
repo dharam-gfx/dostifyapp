@@ -12,7 +12,6 @@ export function useSocket( roomId: string , userName: string = "" ) {
         const socketIo = io( SERVER_URL, {
             transports: ["websocket"], // Ensures a clean WebSocket connection
         } );
-
         socketIo.emit( "join-room", { roomId, userName } );
 
         socketIo.on( "joined-room", ( { userId } ) => {
