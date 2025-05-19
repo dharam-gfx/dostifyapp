@@ -14,7 +14,7 @@ const ChatRoomHeader: React.FC<ChatRoomHeaderProps> = ( { roomId, isConnected, u
                             <Tooltip>
                                 <TooltipTrigger asChild>
                                     <div className="flex items-center text-xs text-green-500 z-20 cursor-pointer">
-                                        <Wifi className="size-4 mr-1 text-green-500 animate-pulse" />
+                                        <Wifi className="size-4 mr-1 text-green-500" />
                                         {/* <span className="text-sm">Connected </span> */}
                                     </div>
                                 </TooltipTrigger>

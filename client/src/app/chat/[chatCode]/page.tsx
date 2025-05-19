@@ -48,7 +48,7 @@ const Page = () => {
           <ChatFeed messages={messages} messagesEndRef={messagesEndRef} />
         </div>
 
-        <div className="fixed inset-x-0 bottom-0 z-40 mb-35 mx-auto w-full max-w-2xl">
+        <div className="fixed inset-x-0 bottom-0 z-40 mb-30 mx-auto w-full max-w-2xl">
           {showTypingIndicator && (
             <div className="mb-2 px-4 animate-fade-in transition-all duration-300 ease-in-out">
               <TypingIndicator typingUsers={usersTyping} />
