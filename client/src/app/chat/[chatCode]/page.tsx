@@ -44,7 +44,7 @@ const Page = () => {
     <div className="flex flex-col h-screen w-full items-center">
       <div className="flex flex-col h-full w-full max-w-2xl">
         <ChatRoomHeader roomId={roomId} isConnected={isConnected} userCount={users.length} />
-        <div className="flex-1 overflow-y-auto mb-35">
+        <div className="flex-1 overflow-y-auto mb-32 py-4">
           <ChatFeed messages={messages} messagesEndRef={messagesEndRef} />
         </div>
 
