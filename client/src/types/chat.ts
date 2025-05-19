@@ -8,19 +8,19 @@
 export interface ChatMessage {
   /** The type of message: system notification or user message */
   type: 'system' | 'message';
-  
+
   /** The user ID of the message sender */
   sender?: string;
-  
+
   /** The message content */
   message: string;
-  
+
   /** The formatted timestamp string */
   timestamp: string;
-  
+
   /** Whether the message was sent by the current user */
   isSent?: boolean;
-  
+
   /** Unique ID for the message to prevent duplicates */
   messageId?: string;
 }
@@ -31,7 +31,7 @@ export interface ChatMessage {
 export interface ChatUser {
   /** The user ID */
   id: string;
-    /** Optional user info */
+  /** Optional user info */
   info?: {
     name?: string;
     avatar?: string;
@@ -45,7 +45,7 @@ export interface ChatUser {
 export interface ChatFeedProps {
   /** Array of messages to display */
   messages: ChatMessage[];
-  
+
   /** Ref to scroll to the latest message */
   messagesEndRef: React.RefObject<HTMLDivElement | null>;
 }
@@ -56,10 +56,10 @@ export interface ChatFeedProps {
 export interface ChatControlsProps {
   /** Current input value */
   input: string;
-  
+
   /** Function to update input */
-  setInput: (val: string) => void;
-  
+  setInput: ( val: string ) => void;
+
   /** Handler for sending messages */
   onSend: () => void;
 }
@@ -75,13 +75,13 @@ export type ConnectionHealthStatus = 'healthy' | 'connected' | 'disconnected';
 export interface ChatRoomHeaderProps {
   /** Number of users in the chat */
   userCount?: number;
-  
+
   /** Unique code for the chat room */
   chatCode?: string;
 
   /** Whether the chat is connected */
   isConnected?: boolean;
-  
+
   /** More detailed connection health status */
   connectionHealth?: ConnectionHealthStatus;
 }
@@ -92,7 +92,7 @@ export interface ChatRoomHeaderProps {
 export interface MessageBubbleProps {
   /** The message content */
   message: string;
-  
+
   /** Formatted timestamp string */
   timestamp: string;
 }
@@ -103,18 +103,18 @@ export interface MessageBubbleProps {
 export interface UsePusherChatOptions {
   /** The unique code for the chat room */
   chatCode: string;
-  
+
   /** The current user's ID */
   userId: string;
-  
+
   /** Callback when users list changes */
-  onUsersChange: (users: string[] | ((prev: string[]) => string[])) => void;
-  
+  onUsersChange: ( users: string[] | ( ( prev: string[] ) => string[] ) ) => void;
+
   /** Callback when a new message is received */
-  onMessageReceived: (message: ChatMessage, isClientEvent: boolean) => void;
-  
+  onMessageReceived: ( message: ChatMessage, isClientEvent: boolean ) => void;
+
   /** Callback when typing status is received */
-  onTypingStatusUpdate?: (userId: string, isTyping: boolean) => void;
+  onTypingStatusUpdate?: ( userId: string, isTyping: boolean ) => void;
 }
 
 /**
@@ -123,13 +123,13 @@ export interface UsePusherChatOptions {
 export interface ConnectionInfo {
   /** Whether the connection is established */
   isConnected: boolean;
-  
+
   /** Whether the channel subscription is complete */
   isFullySubscribed: boolean;
-  
+
   /** Whether client events are supported on this connection */
   clientEventsSupported: boolean;
-  
+
   /** The current Pusher connection state */
   connectionState: string;
 }
@@ -140,7 +140,7 @@ export interface ConnectionInfo {
 export interface TypingStatusEvent {
   /** User ID of the person typing */
   userId: string;
-  
+
   /** Whether the user is currently typing */
   isTyping: boolean;
 }

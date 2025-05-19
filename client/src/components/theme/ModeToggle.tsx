@@ -1,17 +1,12 @@
 "use client"
 
-import { FC, SVGProps } from "react"
 import * as RadioGroup from "@radix-ui/react-radio-group"
 import { Monitor, Moon, Sun, CircleCheck } from "lucide-react"
 import { useTheme } from "next-themes"
 import { cn } from "@/lib/utils"
-interface Option {
-    value: string
-    label: string
-    icon: FC<SVGProps<SVGSVGElement>>
-};
+import { ThemeOption } from "@/types/components"
 
-const options: Option[] = [
+const options: ThemeOption[] = [
     {
         value: "light",
         label: "Light",

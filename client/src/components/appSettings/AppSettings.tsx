@@ -1,16 +1,7 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AudioLines, GlobeLock, PaintRoller, Settings } from "lucide-react";
 import { ModeToggle, Privacy, SoundSetting, Modal } from '@/components/index';
-import { LucideIcon } from "lucide-react";
-import { FC } from "react";
-
-interface TabItem {
-    name: string;
-    value: string;
-    icon: LucideIcon;
-    content?: FC;
-    className?: string;
-}
+import { TabItem } from "@/types/components";
 
 const tabs: TabItem[] = [
     {

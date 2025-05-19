@@ -1,15 +1,5 @@
 import React from "react";
-
-interface TypingIndicatorProps {
-  /** Array of user IDs who are typing */
-  typingUsers: string[];
-  
-  /** Maximum number of users to show in the message */
-  maxUsersToShow?: number;
-  
-  /** Additional CSS classes */
-  className?: string;
-}
+import { TypingIndicatorProps } from "@/types/components";
 
 /**
  * Component that displays who is currently typing

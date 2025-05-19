@@ -1,20 +1,4 @@
-import type { Metadata as NextMetadata } from "next";
-
-interface Metadata extends NextMetadata {
-  openGraph?: {
-    title?: string;
-    description?: string;
-    url?: string;
-    images?: { url: string }[]; // Explicitly define images as an array of objects with 'url'
-    siteName?: string;
-  };
-  twitter?: {
-    card?: string; // Add 'card' property to the Twitter metadata
-    title?: string;
-    description?: string;
-    images?: string[];
-  };
-}
+import { Metadata } from "@/types/config";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import ClientLayout from "./ClientLayout";

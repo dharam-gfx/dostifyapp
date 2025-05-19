@@ -1,12 +1,7 @@
 import React from "react";
 import { Lock, Users, Wifi, WifiOff } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-
-interface ChatRoomHeaderProps {
-    roomId?: string;
-    isConnected?: boolean;
-    userCount?: number;
-}
+import { ChatRoomHeaderProps } from "@/types/components";
 
 const ChatRoomHeader: React.FC<ChatRoomHeaderProps> = ( { roomId, isConnected, userCount } ) => {
     return (

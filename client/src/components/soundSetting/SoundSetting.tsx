@@ -7,7 +7,8 @@ import { useSelector, useDispatch } from 'react-redux';
 import { RootState, AppDispatch } from '@/store/strore'
 import { playSound, toggleSoundHandler } from '@/features/soundSlice'
 import { toast } from "sonner";
-// Extend the Window interface to include webkitAudioContext
+
+// Declare webkitAudioContext directly
 declare global {
     interface Window {
         webkitAudioContext?: typeof AudioContext

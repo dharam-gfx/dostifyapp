@@ -2,15 +2,7 @@ import React from "react";
 import { Paperclip, Smile, Image as LunarImage, Video, Mic, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-
-interface ChatControlsProps {
-  input: string;
-  setInput: ( val: string ) => void;
-  onSend: () => void;
-  isConnected?: boolean;
-  sendTyping?: ( isTyping: boolean ) => void;
-}
-
+import { ChatControlsProps } from "@/types/components";
 
 let typingTimeout: NodeJS.Timeout | null = null;
 const ChatControls: React.FC<ChatControlsProps> = ( { input, setInput, onSend, sendTyping, isConnected = true } ) => {

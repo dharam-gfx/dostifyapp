@@ -42,8 +42,8 @@ export interface UserEvents {
 export interface SocketHookReturn {
     socket: Socket | null;
     userId: string;
-    sendMessage: (encryptedData: string, userId: string) => void;
-    sendTyping: (isTyping: boolean) => void;
+    sendMessage: ( encryptedData: string, userId: string ) => void;
+    sendTyping: ( isTyping: boolean ) => void;
     usersTyping: string[];
     userEvents: UserEvents;
     users: string[];

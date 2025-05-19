@@ -20,29 +20,29 @@ export function calculateMessageReceiptInterval(
   const receivedMessages = messages.filter(
     msg => msg.type === 'message' && msg.sender !== currentUserId
   );
-  
-  if (receivedMessages.length < windowSize + 1) {
+
+  if ( receivedMessages.length < windowSize + 1 ) {
     return null;  // Not enough messages to calculate
   }
-  
+
   // Take the most recent messages according to windowSize
-  const recentMessages = receivedMessages.slice(-windowSize - 1);
-  
+  const recentMessages = receivedMessages.slice( -windowSize - 1 );
+
   // Calculate time differences between consecutive messages
   let totalTimeDiff = 0;
   let count = 0;
-  
-  for (let i = 1; i < recentMessages.length; i++) {
-    const current = new Date(recentMessages[i].timestamp).getTime();
-    const previous = new Date(recentMessages[i-1].timestamp).getTime();
-    
+
+  for ( let i = 1; i < recentMessages.length; i++ ) {
+    const current = new Date( recentMessages[i].timestamp ).getTime();
+    const previous = new Date( recentMessages[i - 1].timestamp ).getTime();
+
     // Skip invalid timestamps
-    if (isNaN(current) || isNaN(previous)) continue;
-    
-    totalTimeDiff += (current - previous);
+    if ( isNaN( current ) || isNaN( previous ) ) continue;
+
+    totalTimeDiff += ( current - previous );
     count++;
   }
-  
+
   // Return average or null if no valid time differences
   return count > 0 ? totalTimeDiff / count : null;
 }
@@ -61,29 +61,29 @@ export function isMessageDeliveryWorking(
   timeWindow: number = 3 * 60 * 1000  // Default: last 3 minutes
 ): boolean {
   // If there are no messages, we can't tell
-  if (messages.length === 0) return true;
-  
+  if ( messages.length === 0 ) return true;
+
   const now = Date.now();
-  const recentMessages = messages.filter(msg => {
-    const msgTime = new Date(msg.timestamp).getTime();
-    return !isNaN(msgTime) && (now - msgTime) < timeWindow;
-  });
-  
+  const recentMessages = messages.filter( msg => {
+    const msgTime = new Date( msg.timestamp ).getTime();
+    return !isNaN( msgTime ) && ( now - msgTime ) < timeWindow;
+  } );
+
   // Check if we've sent any messages in the time window
   const sentMessages = recentMessages.filter(
     msg => msg.sender === currentUserId && msg.type === 'message'
   );
-  
+
   // Check if we've received any messages in the time window
   const receivedMessages = recentMessages.filter(
     msg => msg.sender !== currentUserId && msg.type === 'message'
   );
-  
+
   // If we've sent messages but received none in response, delivery might be broken
   // But only if there are other users who might respond
-  if (sentMessages.length > 2 && receivedMessages.length === 0) {
+  if ( sentMessages.length > 2 && receivedMessages.length === 0 ) {
     return false;
   }
-  
+
   return true;
 }
