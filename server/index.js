@@ -5,24 +5,22 @@ import cors from "cors";
 import http from 'http';
 import { Server } from "socket.io";
 import { nanoid } from "nanoid";
+import { configureCors, socketCorsConfig } from './cors-config.js';
 
 const app = express();
 const server = http.createServer(app);
 
 // Setup Socket.IO with CORS
 const io = new Server(server, {
-    cors: {
-        origin: "http://localhost:3000", // Your Next.js frontend
-        methods: ["GET", "POST"],
-        credentials: true // Allow credentials
-    }
+  ...socketCorsConfig,
+  maxHttpBufferSize: 5e6, // 5MB max message size
+  pingTimeout: 30000,     // Faster disconnection detection
+  connectTimeout: 10000,  // Faster connection timeout
 });
 
-app.use(cors({
-    origin: "http://localhost:3000", // Your Next.js frontend
-    credentials: true // Allow credentials
-}));
-app.use(express.json());
+// Configure CORS for the Express app
+configureCors(app);
+app.use(express.json({ limit: '5mb' })); // Limit JSON payload size
 
 const PORT = process.env.PORT || 5000;
 

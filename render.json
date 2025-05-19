@@ -1,0 +1,21 @@
+{
+  "$schema": "https://render.com/docs/render-schema.json",
+  "monorepo": true,
+  "rootDir": ".",
+  "services": [
+    {
+      "name": "dostify-server",
+      "rootDir": "server",
+      "buildCommand": "npm install",
+      "startCommand": "node index.js",
+      "plan": "free"
+    },
+    {
+      "name": "dostify-client",
+      "rootDir": "client",
+      "buildCommand": "npm install && npm run build",
+      "startCommand": "npm run start",
+      "plan": "free"
+    }
+  ]
+}
