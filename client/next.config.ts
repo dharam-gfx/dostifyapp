@@ -6,7 +6,7 @@ const nextConfig: NextConfig = {
       {
         source: '/api/:path*',
         destination: process.env.NODE_ENV === 'production' 
-          ? 'https://dostify-server.onrender.com/api/:path*'
+          ? process.env.SERVER_URL || 'https://dostifyapp-server.vercel.app/api/:path*'
           : 'http://localhost:5000/api/:path*',
       },
     ];
