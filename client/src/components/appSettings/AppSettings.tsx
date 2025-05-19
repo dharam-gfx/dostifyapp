@@ -1,6 +1,9 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AudioLines, GlobeLock, PaintRoller, Settings } from "lucide-react";
-import { ModeToggle, Privacy, SoundSetting, Modal } from '@/components/index';
+import ModeToggle from '@/components/theme/ModeToggle';
+import Privacy from '@/components/privacy/Privacy';
+import SoundSetting from '@/components/soundSetting/SoundSetting';
+import { Modal } from '@/components/ui/Modal';
 import { TabItem } from "@/types/components";
 
 const tabs: TabItem[] = [

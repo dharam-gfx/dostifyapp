@@ -2,7 +2,7 @@
 
 import { Provider } from "react-redux";
 import { store } from "@/store/strore";
-import { ThemeProvider } from "@/components/index";
+import { ThemeProvider } from "@/components/theme/theme-provider";
 import Header from "@/components/header/Header";
 import Footer from "@/components/footer/Footer";
 import { Toaster } from "@/components/ui/sonner";

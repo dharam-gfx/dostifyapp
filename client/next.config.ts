@@ -1,21 +1,6 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // Disable static optimization for the entire application
-  // This can help with certain reference errors during prerendering
-  output: 'standalone',
-  
-  // Skip type checking during production build to avoid potential issues
-  typescript: {
-    // This setting won't let TypeScript errors stop the production build
-    ignoreBuildErrors: true,
-  },
-  
-  // Suppress ESLint warnings during the build
-  eslint: {
-    // This setting won't let ESLint errors stop the production build
-    ignoreDuringBuilds: true,
-  },
   
   async rewrites() {
     return [
