@@ -9,6 +9,12 @@ const nextConfig: NextConfig = {
           ? process.env.SERVER_URL || 'https://dostifyapp-server.vercel.app/api/:path*'
           : 'http://localhost:5000/api/:path*',
       },
+      {
+        source: '/socket.io/:path*',
+        destination: process.env.NODE_ENV === 'production'
+          ? 'https://dostifyapp-server.vercel.app/socket.io/:path*'
+          : 'http://localhost:5000/socket.io/:path*',
+      }
     ];
   },
   
