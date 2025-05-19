@@ -1,18 +1,54 @@
 // hooks/useSocket.ts
 import { createMessageTimestamp } from "@/utils/dateUtils";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { io, Socket } from "socket.io-client";
 
 const SERVER_URL = process.env.NEXT_PUBLIC_SERVER_URL || "http://localhost:5000"; // Use env variable for server URL
 
-// Define ChatMessage type
+// Define message types for better type checking
+export type MessageType = 'system' | 'user';
+
+// Define ChatMessage type with more specific types
 export type ChatMessage = {
-    type: string;
+    type: MessageType;
     sender?: string;
     message: string;
     timestamp: string;
     isSent?: boolean;
 };
+
+// Type for socket event data
+type UserJoinLeaveData = {
+    userId: string;
+    users: string[];
+};
+
+type TypingEventData = {
+    userIds: string[];
+};
+
+type MessageEventData = {
+    encryptedData: string;
+    userId: string;
+};
+
+// Helper function to create system messages
+const createSystemMessage = (sender: string, message: string, isSent: boolean): ChatMessage => ({
+    type: 'system',
+    sender,
+    message,
+    timestamp: createMessageTimestamp(),
+    isSent
+});
+
+// Helper function to create user messages
+const createUserMessage = (sender: string, message: string, isSent: boolean): ChatMessage => ({
+    type: 'user',
+    sender,
+    message,
+    timestamp: createMessageTimestamp(),
+    isSent
+});
 
 export function useSocket(roomId: string, userName: string = "") {
     const [socket, setSocket] = useState<Socket | null>(null);
@@ -45,7 +81,7 @@ export function useSocket(roomId: string, userName: string = "") {
 
         socketIo.emit("join-room", { roomId, userName });
 
-        socketIo.on("joined-room", ({ userId, users }) => {
+        socketIo.on("joined-room", ({ userId, users }: UserJoinLeaveData) => {
             userIdRef.current = userId;
             setUserId(userId);
             setIsConnected(true);
@@ -53,36 +89,24 @@ export function useSocket(roomId: string, userName: string = "") {
             // Add system message for self join
             setMessages(prev => ([
                 ...prev,
-                {
-                    type: 'system',
-                    sender: userName,
-                    message: `you joined the chat`,
-                    timestamp: createMessageTimestamp(),
-                    isSent: true
-                }
+                createSystemMessage(userName, `you joined the chat`, true)
             ]));
         });
 
         socketIo.on("connect", () => setIsConnected(true));
         socketIo.on("disconnect", () => setIsConnected(false));
 
-        socketIo.on("user-joined", ({ userId: joinedUser, users }) => {
+        socketIo.on("user-joined", ({ userId: joinedUser, users }: UserJoinLeaveData) => {
             setUserEvents(e => ({ ...e, joined: joinedUser }));
             setUsers(users || []);
             // Add system message for other user join
             setMessages(prev => ([
                 ...prev,
-                {
-                    type: 'system',
-                    sender: joinedUser,
-                    message: `${joinedUser} joined the chat`,
-                    timestamp: createMessageTimestamp(),
-                    isSent: false
-                }
+                createSystemMessage(joinedUser, `${joinedUser} joined the chat`, false)
             ]));
         });
 
-        socketIo.on("user-left", ({ userId: leftUser, users }) => {
+        socketIo.on("user-left", ({ userId: leftUser, users }: UserJoinLeaveData) => {
             setUserEvents(e => ({ ...e, left: leftUser }));
             setUsers(users || []);
             
@@ -110,35 +134,23 @@ export function useSocket(roomId: string, userName: string = "") {
                 }
                 return [
                     ...prev,
-                    {
-                        type: 'system',
-                        sender: leftUser,
-                        message: `${leftUser} left the chat`,
-                        timestamp: createMessageTimestamp(),
-                        isSent: leftUser === userIdRef.current
-                    }
+                    createSystemMessage(leftUser, `${leftUser} left the chat`, leftUser === userIdRef.current)
                 ];
             });
             console.log("User left:", leftUser, "sss", userIdRef.current);
         });
 
-        socketIo.on("users-typing", ({ userIds }) => {
+        socketIo.on("users-typing", ({ userIds }: TypingEventData) => {
             // Only show other users as typing, not yourself
             setUsersTyping(userIds.filter((id: string) => id !== socketIo.id));
         });
 
-        socketIo.on("receive-message", ({ encryptedData, userId }) => {
+        socketIo.on("receive-message", ({ encryptedData, userId }: MessageEventData) => {
             console.log("Message received:", encryptedData, userId);
             // Add received message to messages array
             setMessages(prev => ([
                 ...prev,
-                {
-                    type: 'user',
-                    sender: userId,
-                    message: encryptedData,
-                    timestamp: createMessageTimestamp(),
-                    isSent: false
-                }
+                createUserMessage(userId, encryptedData, false)
             ]));
             // Removed direct reference to messages to avoid eslint dependency warning
         });
@@ -154,30 +166,24 @@ export function useSocket(roomId: string, userName: string = "") {
         };
     }, [roomId, userName]);
 
-    const sendMessage = (encryptedData: string, userId: string) => {
+    const sendMessage = useCallback((encryptedData: string, userId: string) => {
         if (socket) {
             console.log("Sending message:", encryptedData, userId);
             socket.emit("send-message", { encryptedData, userId });
             // Add sent message to messages array
             setMessages(prev => ([
                 ...prev,
-                {
-                    type: 'user',
-                    sender: userId,
-                    message: encryptedData,
-                    timestamp: createMessageTimestamp(),
-                    isSent: true
-                }
+                createUserMessage(userId, encryptedData, true)
             ]));
             console.log("Message sent:", messages);
         }
-    };
+    }, [socket, messages]);
 
-    const sendTyping = (isTyping: boolean) => {
+    const sendTyping = useCallback((isTyping: boolean) => {
         if (socket && userIdRef.current) {
             socket.emit("user-typing", { userId: userIdRef.current, isTyping });
         }
-    };
+    }, [socket]);
 
     return { socket, userId, sendMessage, sendTyping, usersTyping, userEvents, users, isConnected, messages, setMessages };
 }
