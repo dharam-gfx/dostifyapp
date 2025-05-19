@@ -6,39 +6,43 @@ import ChatRoomHeader from "@/components/chat/ChatRoomHeader";
 import ChatControls from "@/components/chat/ChatControls";
 import TypingIndicator from "@/components/ui/TypingIndicator";
 import { useSocket } from "@/hooks/useSocket";
+import { useSocketNotificationSound } from "@/hooks/useSocketNotificationSound";
 import { useParams } from "next/navigation";
 
 const Page = () => {
-  const [userName,] = useState("dharam");
+  const [userName,] = useState( "dharam" );
   const params = useParams();
-  
+
   // Memoize the room ID from URL
-  const roomIdFromUrl = useMemo(() => params?.chatCode as string || "", [params]);
+  const roomIdFromUrl = useMemo( () => params?.chatCode as string || "", [params] );
 
-  const [input, setInput] = useState("");
-  const [roomId, setRoomId] = useState<string>(roomIdFromUrl);
-  const messagesEndRef = useRef<HTMLDivElement | null>(null);
+  const [input, setInput] = useState( "" );
+  const [roomId, setRoomId] = useState<string>( roomIdFromUrl );
+  const messagesEndRef = useRef<HTMLDivElement | null>( null );
 
-  const { userId, sendMessage, sendTyping, usersTyping, users, isConnected, messages } = useSocket(roomId, userName);
+  const { userId, sendMessage, sendTyping, usersTyping, users, isConnected, messages } = useSocket( roomId, userName );
 
-  useEffect(() => {
-    setRoomId(roomIdFromUrl);
-    console.log("Room ID from URL:", roomIdFromUrl);
-  }, [roomIdFromUrl]);
+  // Use the socket notification sound hook
+  useSocketNotificationSound( messages, userId );
+
+  useEffect( () => {
+    setRoomId( roomIdFromUrl );
+    console.log( "Room ID from URL:", roomIdFromUrl );
+  }, [roomIdFromUrl] );
 
   // Memoize the typing indicator check
-  const showTypingIndicator = useMemo(() => {
-    return usersTyping.length > 0 && !usersTyping.includes(userId);
-  }, [usersTyping, userId]);
+  const showTypingIndicator = useMemo( () => {
+    return usersTyping.length > 0 && !usersTyping.includes( userId );
+  }, [usersTyping, userId] );
 
   // Memoize the send handler
-  const handleSend = useCallback(() => {
-    if (input.trim() === "") {
+  const handleSend = useCallback( () => {
+    if ( input.trim() === "" ) {
       return;
     }
-    sendMessage(input, userId);
-    setInput("");
-  }, [input, sendMessage, userId, setInput]);
+    sendMessage( input, userId );
+    setInput( "" );
+  }, [input, sendMessage, userId, setInput] );
 
   return (
     <div className="flex flex-col h-screen w-full items-center">
@@ -59,7 +63,7 @@ const Page = () => {
             setInput={setInput}
             onSend={handleSend}
             sendTyping={sendTyping}
-            isConnected={isConnected} 
+            isConnected={isConnected}
           />
         </div>
       </div>

@@ -5,9 +5,9 @@ import { AudioLines, Volume2, VolumeOff } from "lucide-react"
 
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState, AppDispatch } from '@/store/strore'
-import { playSound, toggleSoundHandler } from '@/features/soundSlice'
+import { playSound, toggleSoundHandler, setVolumeLevel } from '@/features/soundSlice'
 import { toast } from "sonner";
-
+import Slider from "@/components/ui/slider";
 // Declare webkitAudioContext directly
 declare global {
     interface Window {
@@ -17,21 +17,26 @@ declare global {
 
 const SoundSetting = () => {
     const dispatch = useDispatch<AppDispatch>();
-    const isSoundEnabled = useSelector((state: RootState) => state.soundPreference.value);
+    const isSoundEnabled = useSelector( ( state: RootState ) => state.soundPreference.value );
+    const volumeLevel = useSelector( ( state: RootState ) => state.soundPreference.volume );
 
     const toggleSound = () => {
-        dispatch(toggleSoundHandler());
-        toast(`Notifications ${isSoundEnabled ? 'muted' : 'enabled'}`, {
+        dispatch( toggleSoundHandler() );
+        toast( `Notifications ${isSoundEnabled ? 'muted' : 'enabled'}`, {
             description: `You will${isSoundEnabled ? ' not' : ''} hear notification sounds.`,
             action: {
                 label: "Undo",
-                onClick: () => dispatch(toggleSoundHandler()),
+                onClick: () => dispatch( toggleSoundHandler() ),
             },
-        });
+        } );
+    };
+
+    const handleVolumeChange = ( value: number ) => {
+        dispatch( setVolumeLevel( value ) );
     };
 
     const testSound = () => {
-        dispatch(playSound());
+        dispatch( playSound() );
     };
 
     return (
@@ -54,6 +59,17 @@ const SoundSetting = () => {
                     >
                         {isSoundEnabled ? "Disable" : "Enable"}
                     </Button>
+                </div>
+                <div>
+                    <p className="text-xs text-muted-foreground">
+                        Adjust the volume level for notification sounds
+                    </p>
+                    <div className="flex items-center justify-between mt-4">
+                        <Slider
+                            value={[volumeLevel]}
+                            onChange={( val: number[] ) => handleVolumeChange( val[0] )}
+                        />
+                    </div>
                 </div>
 
                 <div className="mt-4">

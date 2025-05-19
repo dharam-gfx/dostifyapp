@@ -131,3 +131,11 @@ export interface ButtonProps {
     /** HTML type attribute */
     type?: 'button' | 'submit' | 'reset';
 }
+
+/**
+ * Props for range slider components
+ */
+export interface SliderProps {
+    value: number[];
+    onChange: ( value: number[] ) => void;
+}
