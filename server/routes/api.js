@@ -3,6 +3,16 @@ const router = express.Router();
 
 // Export the router setup function
 export default function(chatRooms) {
+    // Health check endpoint
+    router.get('/health', (req, res) => {
+        res.status(200).json({ 
+            status: 'ok', 
+            uptime: process.uptime(),
+            timestamp: new Date(),
+            rooms: Object.keys(chatRooms).length
+        });
+    });
+
     // Add endpoint to check room existence
     router.get('/check-room/:roomId', (req, res) => {
         try {
