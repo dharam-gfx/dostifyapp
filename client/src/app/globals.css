@@ -114,11 +114,13 @@
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground;
   }
 }
-button{
+
+button {
   cursor: pointer;
 }
 
@@ -129,25 +131,30 @@ button{
 }
 
 ::-webkit-scrollbar-track {
-   border-radius: 50px;
-  background: theme('colors.zinc.100'); /* Light mode track */
+  border-radius: 50px;
+  background: theme('colors.zinc.100');
+  /* Light mode track */
 }
 
 ::-webkit-scrollbar-thumb {
-  background-color: theme('colors.zinc.400'); /* Light mode thumb */
+  background-color: theme('colors.zinc.400');
+  /* Light mode thumb */
   border-radius: 50px;
   border: 2px solid transparent;
   background-clip: content-box;
 }
 
 .dark ::-webkit-scrollbar-track {
-  background: theme('colors.zinc.800'); /* Dark mode track */
+  background: theme('colors.zinc.800');
+  /* Dark mode track */
 }
 
 .dark ::-webkit-scrollbar-thumb {
-  background-color: theme('colors.zinc.600'); /* Dark mode thumb */
+  background-color: theme('colors.zinc.600');
+  /* Dark mode thumb */
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background-color: theme('colors.zinc.500'); /* Thumb hover color */
+  background-color: theme('colors.zinc.500');
+  /* Thumb hover color */
 }
