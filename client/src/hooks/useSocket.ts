@@ -2,35 +2,15 @@
 import { createMessageTimestamp } from "@/utils/dateUtils";
 import { useEffect, useState, useRef, useCallback } from "react";
 import { io, Socket } from "socket.io-client";
+import { 
+    ChatMessage, 
+    UserJoinLeaveData, 
+    TypingEventData, 
+    MessageEventData,
+    SocketHookReturn 
+} from "@/types/socket";
 
 const SERVER_URL = process.env.NEXT_PUBLIC_SERVER_URL || "http://localhost:5000"; // Use env variable for server URL
-
-// Define message types for better type checking
-export type MessageType = 'system' | 'user';
-
-// Define ChatMessage type with more specific types
-export type ChatMessage = {
-    type: MessageType;
-    sender?: string;
-    message: string;
-    timestamp: string;
-    isSent?: boolean;
-};
-
-// Type for socket event data
-type UserJoinLeaveData = {
-    userId: string;
-    users: string[];
-};
-
-type TypingEventData = {
-    userIds: string[];
-};
-
-type MessageEventData = {
-    encryptedData: string;
-    userId: string;
-};
 
 // Helper function to create system messages
 const createSystemMessage = (sender: string, message: string, isSent: boolean): ChatMessage => ({
@@ -50,7 +30,7 @@ const createUserMessage = (sender: string, message: string, isSent: boolean): Ch
     isSent
 });
 
-export function useSocket(roomId: string, userName: string = "") {
+export function useSocket(roomId: string, userName: string = ""): SocketHookReturn {
     const [socket, setSocket] = useState<Socket | null>(null);
     const [userId, setUserId] = useState("");
     const [usersTyping, setUsersTyping] = useState<string[]>([]);
