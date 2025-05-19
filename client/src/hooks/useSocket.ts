@@ -23,11 +23,25 @@ export function useSocket(roomId: string, userName: string = "") {
     const [isConnected, setIsConnected] = useState(false);
     const [messages, setMessages] = useState<ChatMessage[]>([]); // Chat messages array
     const userIdRef = useRef("");
+    // Track recently left users to prevent duplicate messages
+    const recentlyLeftUsers = useRef<Record<string, number>>({});
 
     useEffect(() => {
         const socketIo = io(SERVER_URL, {
             transports: ["websocket"], // Ensures a clean WebSocket connection
         });
+
+        // Clean up stale entries from recentlyLeftUsers every minute
+        const cleanupInterval = setInterval(() => {
+            const now = Date.now();
+            const staleThreshold = 60000; // 1 minute
+            
+            Object.keys(recentlyLeftUsers.current).forEach(userId => {
+                if (now - recentlyLeftUsers.current[userId] > staleThreshold) {
+                    delete recentlyLeftUsers.current[userId];
+                }
+            });
+        }, 60000);
 
         socketIo.emit("join-room", { roomId, userName });
 
@@ -71,17 +85,40 @@ export function useSocket(roomId: string, userName: string = "") {
         socketIo.on("user-left", ({ userId: leftUser, users }) => {
             setUserEvents(e => ({ ...e, left: leftUser }));
             setUsers(users || []);
-            // Add system message for user leave
-            setMessages(prev => ([
-                ...prev,
-                {
-                    type: 'system',
-                    sender: leftUser,
-                    message: `${leftUser} left the chat`,
-                    timestamp: createMessageTimestamp(),
-                    isSent: leftUser === userIdRef.current
+            
+            // Check if this user has recently left to prevent duplicate messages
+            const now = Date.now();
+            if (recentlyLeftUsers.current[leftUser] && now - recentlyLeftUsers.current[leftUser] < 5000) {
+                console.log("Preventing duplicate left message for", leftUser);
+                return; // Skip adding another message if user left recently (within 5 seconds)
+            }
+            
+            // Mark this user as recently left
+            recentlyLeftUsers.current[leftUser] = now;
+            
+            // Add system message for user leave (with double-check on existing messages)
+            setMessages(prev => {
+                // Still do an additional check on existing messages as a fallback
+                const alreadyLeft = prev.some(
+                    msg =>
+                        msg.type === 'system' &&
+                        msg.sender === leftUser &&
+                        msg.message === `${leftUser} left the chat`
+                );
+                if (alreadyLeft) {
+                    return prev; // Don't add duplicate
                 }
-            ]));
+                return [
+                    ...prev,
+                    {
+                        type: 'system',
+                        sender: leftUser,
+                        message: `${leftUser} left the chat`,
+                        timestamp: createMessageTimestamp(),
+                        isSent: leftUser === userIdRef.current
+                    }
+                ];
+            });
             console.log("User left:", leftUser, "sss", userIdRef.current);
         });
 
@@ -113,6 +150,7 @@ export function useSocket(roomId: string, userName: string = "") {
                 socketIo.emit("leave-room", { roomId, userName });
             }
             socketIo.disconnect();
+            clearInterval(cleanupInterval);
         };
     }, [roomId, userName]);
 
