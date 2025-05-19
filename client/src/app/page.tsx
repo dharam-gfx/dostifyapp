@@ -9,34 +9,33 @@ import { Input } from "@/components/ui/input";
 import { nanoid } from "@reduxjs/toolkit";
 
 function Home() {
-  const [chatCode, setChatCode] = useState("");
+  const [chatCode, setChatCode] = useState( "" );
   const router = useRouter();
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setChatCode(e.target.value);
+  const handleInputChange = ( e: React.ChangeEvent<HTMLInputElement> ) => {
+    setChatCode( e.target.value );
   };
   const handleJoinChat = async () => {
-    console.log("Checking room:", chatCode);    if (chatCode.trim()) {
+    console.log( "Checking room:", chatCode ); if ( chatCode.trim() ) {
       try {
-        const response = await fetch(`/api/check-room/${chatCode}`);
+        const response = await fetch( `/api/check-room/${chatCode}` );
         const data = await response.json();
-        
-        if (data.exists) {
-          router.push(`/chat/${chatCode}`);
+
+        if ( data.exists ) {
+          router.push( `/chat/${chatCode}` );
         } else {
-          alert("This chat room doesn't exist. Please check the code or create a new chat.");
+          alert( "This chat room doesn't exist. Please check the code or create a new chat." );
         }
-      } catch (error) {
-        console.error("Error checking room:", error);
-        alert("Unable to check room status. Please try again.");
+      } catch ( error ) {
+        console.error( "Error checking room:", error );
+        alert( "Unable to check room status. Please try again." );
       }
     }
   };
   const handleStartNewChat = () => {
-    const newChatCode = nanoid( 4 );
-    console.log("Starting new chat", newChatCode);
-    router.push(`/chat/${newChatCode}`);
-
+    const newChatCode = nanoid( 6 )?.toLowerCase();
+    console.log( "Starting new chat", newChatCode );
+    router.push( `/chat/${newChatCode}` );
   }
 
   return (
@@ -63,16 +62,17 @@ function Home() {
             <Input
               value={chatCode}
               onChange={handleInputChange}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
+              onKeyDown={( e ) => {
+                if ( e.key === "Enter" ) {
                   handleJoinChat();
                 }
-              } }
+              }}
               placeholder="Enter chat code or link to join..."
               className="h-11 pl-4 pr-12 rounded-full bg-zinc-100 dark:bg-zinc-800 border-zinc-200 dark:border-zinc-700 focus-visible:ring-1 focus-visible:ring-zinc-600"
             />
             <div className="absolute right-1 top-1/2 -translate-y-1/2">
               <Button
+               title="Click join chat"
                 size="icon"
                 className="size-9 rounded-full bg-zinc-950 text-white dark:bg-zinc-100 dark:text-zinc-950 hover:bg-zinc-900 dark:hover:bg-zinc-200"
                 onClick={handleJoinChat}
@@ -89,9 +89,8 @@ function Home() {
           </div>
 
           {/* Start new chat button */}
-          <Button className="w-full h-11 rounded-full bg-zinc-950 text-white dark:bg-white dark:text-zinc-950 hover:bg-zinc-900 dark:hover:bg-zinc-100"
-           onClick={handleStartNewChat}
-           disabled={!!chatCode.trim()}
+          <Button title="Click here to start new private chat" className="w-full h-11 rounded-full bg-zinc-950 text-white dark:bg-white dark:text-zinc-950 hover:bg-zinc-900 dark:hover:bg-zinc-100"
+            onClick={handleStartNewChat}
           >
             <ShieldCheck size={18} /> Start new private chat
           </Button>

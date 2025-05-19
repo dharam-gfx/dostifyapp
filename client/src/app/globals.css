@@ -147,3 +147,7 @@ button{
 .dark ::-webkit-scrollbar-thumb {
   background-color: theme('colors.zinc.600'); /* Dark mode thumb */
 }
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: theme('colors.zinc.500'); /* Thumb hover color */
+}

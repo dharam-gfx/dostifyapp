@@ -1,6 +1,6 @@
 // hooks/useSocket.ts
 import { createMessageTimestamp } from "@/utils/dateUtils";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { io, Socket } from "socket.io-client";
 
 const SERVER_URL = process.env.NEXT_PUBLIC_SERVER_URL || "http://localhost:5000"; // Use env variable for server URL
@@ -14,25 +14,26 @@ export type ChatMessage = {
     isSent?: boolean;
 };
 
-export function useSocket( roomId: string , userName: string = "" ) {
-    const [socket, setSocket] = useState<Socket | null>( null );
-    const [userId, setUserId] = useState( "" );
+export function useSocket(roomId: string, userName: string = "") {
+    const [socket, setSocket] = useState<Socket | null>(null);
+    const [userId, setUserId] = useState("");
     const [usersTyping, setUsersTyping] = useState<string[]>([]);
     const [userEvents, setUserEvents] = useState<{ joined?: string, left?: string }>({});
     const [users, setUsers] = useState<string[]>([]);
     const [isConnected, setIsConnected] = useState(false);
     const [messages, setMessages] = useState<ChatMessage[]>([]); // Chat messages array
+    const userIdRef = useRef("");
 
-    useEffect( () => {
-        const socketIo = io( SERVER_URL, {
+    useEffect(() => {
+        const socketIo = io(SERVER_URL, {
             transports: ["websocket"], // Ensures a clean WebSocket connection
-        } );
+        });
 
-        socketIo.emit( "join-room", { roomId, userName } );
+        socketIo.emit("join-room", { roomId, userName });
 
-        socketIo.on( "joined-room", ( { userId, users } ) => {
-            console.log( "User joined:", userId, users );
-            setUserId( userId );
+        socketIo.on("joined-room", ({ userId, users }) => {
+            userIdRef.current = userId;
+            setUserId(userId);
             setIsConnected(true);
             setUsers(users || []);
             // Add system message for self join
@@ -46,12 +47,12 @@ export function useSocket( roomId: string , userName: string = "" ) {
                     isSent: true
                 }
             ]));
-        } );
+        });
 
-        socketIo.on( "connect", () => setIsConnected(true) );
-        socketIo.on( "disconnect", () => setIsConnected(false) );
+        socketIo.on("connect", () => setIsConnected(true));
+        socketIo.on("disconnect", () => setIsConnected(false));
 
-        socketIo.on( "user-joined", ( { userId: joinedUser, users } ) => {
+        socketIo.on("user-joined", ({ userId: joinedUser, users }) => {
             setUserEvents(e => ({ ...e, joined: joinedUser }));
             setUsers(users || []);
             // Add system message for other user join
@@ -67,7 +68,7 @@ export function useSocket( roomId: string , userName: string = "" ) {
             ]));
         });
 
-        socketIo.on( "user-left", ( { userId: leftUser, users } ) => {
+        socketIo.on("user-left", ({ userId: leftUser, users }) => {
             setUserEvents(e => ({ ...e, left: leftUser }));
             setUsers(users || []);
             // Add system message for user leave
@@ -78,19 +79,19 @@ export function useSocket( roomId: string , userName: string = "" ) {
                     sender: leftUser,
                     message: `${leftUser} left the chat`,
                     timestamp: createMessageTimestamp(),
-                    isSent: leftUser === userId
+                    isSent: leftUser === userIdRef.current
                 }
             ]));
-            console.log( "User left:", leftUser, "sss",userId );
+            console.log("User left:", leftUser, "sss", userIdRef.current);
         });
 
-        socketIo.on( "users-typing", ( { userIds } ) => {
+        socketIo.on("users-typing", ({ userIds }) => {
             // Only show other users as typing, not yourself
             setUsersTyping(userIds.filter((id: string) => id !== socketIo.id));
         });
 
-        socketIo.on( "receive-message", ( { encryptedData, userId } ) => {
-            console.log( "Message received:", encryptedData , userId);
+        socketIo.on("receive-message", ({ encryptedData, userId }) => {
+            console.log("Message received:", encryptedData, userId);
             // Add received message to messages array
             setMessages(prev => ([
                 ...prev,
@@ -102,23 +103,23 @@ export function useSocket( roomId: string , userName: string = "" ) {
                     isSent: false
                 }
             ]));
-            console.log( "Message recv:", messages );
-        } );
+            // Removed direct reference to messages to avoid eslint dependency warning
+        });
 
-        setSocket( socketIo );
+        setSocket(socketIo);
 
         return () => {
             if (socketIo.connected) {
-                socketIo.emit( "leave-room", { roomId , userName} );
+                socketIo.emit("leave-room", { roomId, userName });
             }
             socketIo.disconnect();
         };
-    }, [roomId, userName] );
+    }, [roomId, userName]);
 
-    const sendMessage = ( encryptedData: string, userId:string ) => {
-        if ( socket ) {
-            console.log( "Sending message:", encryptedData, userId );
-            socket.emit( "send-message", { encryptedData , userId} );
+    const sendMessage = (encryptedData: string, userId: string) => {
+        if (socket) {
+            console.log("Sending message:", encryptedData, userId);
+            socket.emit("send-message", { encryptedData, userId });
             // Add sent message to messages array
             setMessages(prev => ([
                 ...prev,
@@ -130,13 +131,13 @@ export function useSocket( roomId: string , userName: string = "" ) {
                     isSent: true
                 }
             ]));
-            console.log( "Message sent:", messages );
+            console.log("Message sent:", messages);
         }
     };
 
     const sendTyping = (isTyping: boolean) => {
-        if (socket && userId) {
-            socket.emit("user-typing", { userId, isTyping });
+        if (socket && userIdRef.current) {
+            socket.emit("user-typing", { userId: userIdRef.current, isTyping });
         }
     };
 
