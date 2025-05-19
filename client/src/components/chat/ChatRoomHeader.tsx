@@ -1,35 +1,50 @@
 import React from "react";
 import { Lock, Users, Wifi, WifiOff } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { useChatState } from "@/hooks/useChatState";
 import { ChatRoomHeaderProps } from "@/types/components";
 
 const ChatRoomHeader: React.FC<ChatRoomHeaderProps> = ( { roomId, isConnected, userCount } ) => {
+    const { deliveryWorking } = useChatState();
     return (
         <div className="flex w-full items-center justify-between py-4">
             <div className="flex-1 flex justify-center items-center gap-4">
                 <div className="flex items-center space-x-2">
 
                     {isConnected ? (
-                        <TooltipProvider>
-                            <Tooltip>
-                                <TooltipTrigger asChild>
-                                    <div className="flex items-center text-xs text-green-500 z-20 cursor-pointer">
-                                        <Wifi className="size-4 mr-1 text-green-500" />
-                                        {/* <span className="text-sm">Connected </span> */}
-                                    </div>
-                                </TooltipTrigger>
-                                <TooltipContent>
-                                    <span>Fully connected</span>
-                                </TooltipContent>
-                            </Tooltip>
-                        </TooltipProvider>
+                        deliveryWorking ? (
+                            <TooltipProvider>
+                                <Tooltip>
+                                    <TooltipTrigger asChild>
+                                        <div className="flex items-center text-xs text-green-500 z-20 cursor-pointer">
+                                            <Wifi className="size-4 mr-1 text-green-500" />
+                                        </div>
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                        <span>Fully connected. Messages are being delivered.</span>
+                                    </TooltipContent>
+                                </Tooltip>
+                            </TooltipProvider>
+                        ) : (
+                            <TooltipProvider>
+                                <Tooltip>
+                                    <TooltipTrigger asChild>
+                                        <div className="flex items-center text-xs text-orange-500 z-20 cursor-pointer">
+                                            <Wifi className="size-4 mr-1 text-orange-500 animate-pulse" />
+                                        </div>
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                        <span>Connected, but message delivery may be delayed or not working.</span>
+                                    </TooltipContent>
+                                </Tooltip>
+                            </TooltipProvider>
+                        )
                     ) : (
                         <TooltipProvider>
                             <Tooltip>
                                 <TooltipTrigger asChild>
                                     <div className="flex items-center text-xs text-rose-500 z-20 cursor-pointer">
                                         <WifiOff className="size-4 mr-1 text-rose-500 animate-pulse" />
-                                        {/* <span className="text-sm">Connecting</span> */}
                                     </div>
                                 </TooltipTrigger>
                                 <TooltipContent>
@@ -49,7 +64,7 @@ const ChatRoomHeader: React.FC<ChatRoomHeaderProps> = ( { roomId, isConnected, u
 
                                     <span
                                         className="inline-flex items-center justify-center px-2 py-0.5 font-medium w-fit whitespace-nowrap shrink-0 text-sm m-0 text-muted-foreground hover:text-primary" >
-                                        {roomId || "xxxxx"}
+                                        {roomId || "xxxxxx"}
                                     </span>
                                 </div>
                             </TooltipTrigger>

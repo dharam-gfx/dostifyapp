@@ -1,5 +1,6 @@
 /**
  * Utilities for message handling and delivery monitoring
+ * Includes functions to calculate message intervals and check delivery health
  */
 import { ChatMessage } from "@/types/chat";
 
@@ -48,12 +49,12 @@ export function calculateMessageReceiptInterval(
 }
 
 /**
- * Check if message delivery seems to be working properly
+ * Checks if message delivery is working by analyzing recent message times
  * 
- * @param messages All messages in the chat
+ * @param messages Array of chat messages
  * @param currentUserId The current user's ID
- * @param timeWindow Time window in milliseconds to check (default: 3 minutes)
- * @returns Boolean indicating if message delivery appears to be working
+ * @param timeWindow Time window in ms to consider (default: 3 minutes)
+ * @returns True if delivery is working, false otherwise
  */
 export function isMessageDeliveryWorking(
   messages: ChatMessage[],

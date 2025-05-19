@@ -1,5 +1,6 @@
 /**
  * Date and time formatting utilities for consistent display across the application
+ * Provides helpers for formatting message times, dates, and relative times
  */
 
 /**
@@ -13,7 +14,7 @@ export function formatMessageTime( date: Date = new Date() ): string {
 }
 
 /**
- * Format a date for display in message headers
+ * Format a date for display in message headers (e.g., Today, Yesterday, or formatted date)
  * 
  * @param date Date to format
  * @returns Formatted date string

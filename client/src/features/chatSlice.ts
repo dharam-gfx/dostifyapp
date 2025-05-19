@@ -2,15 +2,25 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { ChatMessage, ConnectionHealthStatus } from '@/types/chat';
 
 export interface ChatState {
+  // Represents a single chat message object
   messages: ChatMessage[];
+  // List of users currently in the chat room
   users: string[];
+  // Indicates if the client is currently connected to the chat server
   isConnected: boolean;
+  // Describes the health of the connection (e.g., 'good', 'unstable', 'disconnected')
   connectionHealth: ConnectionHealthStatus;
+  // List of users currently typing
   typingUsers: string[];
+  // Tracks message IDs that have already been seen to prevent duplicates
   messageIdsSeen: string[];
+  // Indicates if the client is fully subscribed to the chat room
   isFullySubscribed: boolean;
+  // Indicates if the client supports custom client events
   clientEventsSupported: boolean;
+  // Represents the current state of the socket connection (e.g., 'connecting', 'connected', 'disconnected', etc.)
   connectionState: string;
+  // Unique code for the chat room, or null if not set
   chatCode: string | null;
 }
 

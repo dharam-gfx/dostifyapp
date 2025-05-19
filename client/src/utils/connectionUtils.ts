@@ -1,5 +1,6 @@
 /**
  * Connection utility functions for better chat connectivity management
+ * Includes network connectivity tests, reconnection delay calculation, and connection health evaluation
  */
 
 /**
@@ -27,7 +28,6 @@ export async function testConnectionStatus(): Promise<boolean> {
 /**
  * Calculate optimal reconnection delay based on attempt count
  * Uses exponential backoff with jitter to prevent thundering herd problem
- * 
  * @param attempt The current reconnection attempt count
  * @param minDelay Minimum delay in milliseconds (default: 1000)
  * @param maxDelay Maximum delay in milliseconds (default: 30000)
@@ -52,11 +52,10 @@ export function calculateReconnectionDelay(
 }
 
 /**
- * Determines if a page refresh is needed based on connection attempts and user count
- * 
+ * Determines if the page should be refreshed based on reconnection attempts and user count
  * @param attempt The current reconnection attempt count
- * @param userCount The number of users in the room
- * @returns Boolean indicating whether to refresh the page
+ * @param userCount The number of users in the chat
+ * @returns True if the page should be refreshed, false otherwise
  */
 export function shouldRefreshPage(attempt: number, userCount: number): boolean {
   // Only refresh if we've tried multiple times and have few or no users
@@ -71,13 +70,12 @@ export function shouldRefreshPage(attempt: number, userCount: number): boolean {
 }
 
 /**
- * Connection quality monitoring function that tracks connection health over time
- * 
- * @param isConnected Current connection state
- * @param messagesReceived Number of messages received from others
- * @param userCount Number of users in chat
- * @param lastMessageTime Timestamp of last received message (optional)
- * @returns ConnectionHealthStatus - 'healthy', 'connected', or 'disconnected'
+ * Evaluates the overall connection health based on connection status, messages received, and user count
+ * @param isConnected Whether the client is connected
+ * @param messagesReceived Number of messages received recently
+ * @param userCount Number of users in the chat
+ * @param lastMessageTime Optional timestamp of the last message
+ * @returns Connection health status: 'healthy', 'connected', or 'disconnected'
  */
 export function evaluateConnectionHealth(
   isConnected: boolean,
