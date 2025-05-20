@@ -1,8 +1,9 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { AudioLines, GlobeLock, PaintRoller, Settings } from "lucide-react";
+import { AudioLines, GlobeLock, PaintRoller, Settings, User } from "lucide-react";
 import ModeToggle from '@/components/theme/ModeToggle';
 import Privacy from '@/components/privacy/Privacy';
 import SoundSetting from '@/components/soundSetting/SoundSetting';
+import UserNameSetting from '@/components/userSetting/UserNameSetting';
 import { Modal } from '@/components/ui/Modal';
 import { TabItem } from "@/types/components";
 
@@ -18,6 +19,12 @@ const tabs: TabItem[] = [
         value: "sound",
         icon: AudioLines,
         content: SoundSetting,
+    },
+    {
+        name: "Username",
+        value: "username",
+        icon: User,
+        content: UserNameSetting,
     },
     {
         name: "Privacy",
@@ -51,7 +58,7 @@ const AppSettings = () => {
                                     title={tab.name}
                                     className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground justify-start px-3 py-1.5"
                                 >
-                                    <tab.icon className="h-5 w-5 md:me-2 "/> <span className='hidden md:block'>{tab.name}</span>
+                                    <tab.icon className="h-5 w-5 md:me-2 " /> <span className='hidden md:block'>{tab.name}</span>
                                 </TabsTrigger>
                             ) )}
                         </TabsList>
@@ -59,7 +66,7 @@ const AppSettings = () => {
                             {tabs.map( ( tab ) => (
                                 <TabsContent key={tab.value} value={tab.value} className={tab.className}>
                                     {tab.content ? (
-                                        <tab.content  />
+                                        <tab.content />
                                     ) : (
                                         <div className="p-4">
                                             <p>Content for {tab.name}</p>

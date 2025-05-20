@@ -50,49 +50,49 @@ interface SoundProviderProps {
  */
 export function SoundProvider( { children }: SoundProviderProps ) {
   // Redux is the single source of truth for sound settings
-  const enabled = useSelector((state: RootState) => state.soundPreference.value);
-  const volume = useSelector((state: RootState) => state.soundPreference.volume);
+  const enabled = useSelector( ( state: RootState ) => state.soundPreference.value );
+  const volume = useSelector( ( state: RootState ) => state.soundPreference.volume );
   const [audio, setAudio] = useState<HTMLAudioElement | null>( null );
   const [alertAudio, setAlertAudio] = useState<HTMLAudioElement | null>( null );
 
   // Initialize audio elements once
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    const sound = new Audio("/sounds/notification-sound.mp3");
+  useEffect( () => {
+    if ( typeof window === "undefined" ) return;
+    const sound = new Audio( "/sounds/notification-sound.mp3" );
     sound.preload = "auto";
-    setAudio(sound);
-    const alertSound = new Audio("/sounds/alert.mp3");
+    setAudio( sound );
+    const alertSound = new Audio( "/sounds/alert.mp3" );
     alertSound.preload = "auto";
-    setAlertAudio(alertSound);
+    setAlertAudio( alertSound );
     return () => {
       sound.pause();
       sound.src = "";
       alertSound.pause();
       alertSound.src = "";
     };
-  }, []);
+  }, [] );
 
   // Always keep audio element volumes in sync with Redux state
-  useEffect(() => {
-    if (audio) audio.volume = volume / 100;
-    if (alertAudio) alertAudio.volume = volume / 100;
-  }, [volume, audio, alertAudio]);
+  useEffect( () => {
+    if ( audio ) audio.volume = volume / 100;
+    if ( alertAudio ) alertAudio.volume = volume / 100;
+  }, [volume, audio, alertAudio] );
 
   const playNotification = () => {
-    if (!enabled || !audio) return;
+    if ( !enabled || !audio ) return;
     audio.volume = volume / 100;
     try {
       audio.currentTime = 0;
-      audio.play().catch((error) => {
-        console.error("[Sound] Failed to play notification:", error);
-      });
-    } catch (error) {
-      console.error("[Sound] Error playing notification:", error);
+      audio.play().catch( ( error ) => {
+        console.error( "[Sound] Failed to play notification:", error );
+      } );
+    } catch ( error ) {
+      console.error( "[Sound] Error playing notification:", error );
     }
   };
 
   const playAlert = () => {
-    if (!enabled || !alertAudio) {
+    if ( !enabled || !alertAudio ) {
       return;
     }
     alertAudio.volume = volume / 100;
@@ -100,25 +100,25 @@ export function SoundProvider( { children }: SoundProviderProps ) {
     alertAudio.currentTime = 0;
     try {
       const playPromise = alertAudio.play();
-      if (playPromise !== undefined) {
-        playPromise.catch((error) => {
-          console.error("[Sound] Failed to play alert:", error);
-        });
+      if ( playPromise !== undefined ) {
+        playPromise.catch( ( error ) => {
+          console.error( "[Sound] Failed to play alert:", error );
+        } );
       }
-    } catch (error) {
-      console.error("[Sound] Error playing alert:", error);
+    } catch ( error ) {
+      console.error( "[Sound] Error playing alert:", error );
     }
   };
 
   const stopAlert = () => {
-    if (!alertAudio) return;
+    if ( !alertAudio ) return;
     alertAudio.pause();
     alertAudio.currentTime = 0;
   };
 
   // Dummy functions for context (Redux handles these)
-  const toggle = () => {};
-  const setVolume = () => {};
+  const toggle = () => { };
+  const setVolume = () => { };
 
   return (
     <SoundContext.Provider value={{ enabled, volume, toggle, setVolume, playNotification, playAlert, stopAlert }}>

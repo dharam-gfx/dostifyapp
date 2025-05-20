@@ -8,9 +8,10 @@ import Footer from "@/components/footer/Footer";
 import { Toaster } from "@/components/ui/sonner";
 import { SoundProvider } from "@/providers/SoundProvider";
 
-export default function ClientLayout({ children }: { children: React.ReactNode }) {
+export default function ClientLayout( { children }: { children: React.ReactNode } ) {
   return (
-    <Provider store={store}>        <ThemeProvider
+    <Provider store={store}>
+      <ThemeProvider
         attribute="class"
         defaultTheme="system"
         enableSystem

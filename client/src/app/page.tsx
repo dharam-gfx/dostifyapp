@@ -1,7 +1,6 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-
 import { ChevronRight, ShieldCheck } from "lucide-react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
@@ -9,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { nanoid } from "@reduxjs/toolkit";
 import { toast } from "sonner";
 import { useAlertSound } from '@/hooks/useAlertSound';
+import { UserNameModal } from "@/components/ui/UserNameModal";
 
 function Home() {
   const [chatCode, setChatCode] = useState( "" );
@@ -20,7 +20,7 @@ function Home() {
     setChatCode( e.target.value );
   };
   const handleJoinChat = async () => {
-    console.log( "Checking room:", chatCode ); if ( chatCode.trim() ) {
+    if ( chatCode.trim() ) {
       try {
         const response = await fetch( `/api/check-room/${chatCode}` );
         const data = await response.json();
@@ -51,9 +51,9 @@ function Home() {
     console.log( "Starting new chat", newChatCode );
     router.push( `/chat/${newChatCode}` );
   }
-
   return (
     <div className="min-h-screen flex items-center justify-center px-4">
+      <UserNameModal />
       <div className="flex flex-col items-center space-y-4 w-full max-w-md">
         {/* Title and subtitle */}
         <div className="text-center space-y-2">

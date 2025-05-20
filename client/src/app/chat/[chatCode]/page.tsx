@@ -1,5 +1,7 @@
 "use client";
 import React, { useState, useRef, useEffect, useMemo, useCallback } from "react";
+import { useSelector } from "react-redux";
+import { RootState } from "@/store/strore";
 
 import ChatFeed from "@/components/chat/ChatFeed";
 import ChatRoomHeader from "@/components/chat/ChatRoomHeader";
@@ -10,7 +12,8 @@ import { useSocketNotificationSound } from "@/hooks/useSocketNotificationSound";
 import { useParams } from "next/navigation";
 
 const Page = () => {
-  const [userName,] = useState( "dharam" );
+  // Get userName from Redux store, fallback to "User" if not available
+  const userName = useSelector( ( state: RootState ) => state.user.userName ) || "User";
   const params = useParams();
 
   // Memoize the room ID from URL
