@@ -33,9 +33,7 @@ export const socketCorsConfig = {
       // Allow requests with no origin (like mobile apps, curl, etc.)
       if (!origin) return callback(null, true);
         const allowedOrigins = [
-        "https://dostify-client.onrender.com", // Production client on Render
         "https://dostifyapp.vercel.app", // Production client on Vercel
-        "https://dostifyapp-client.vercel.app", // Alternative domain on Vercel
         "http://localhost:3000" // Local development
       ];
       
