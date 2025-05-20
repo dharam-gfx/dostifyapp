@@ -24,6 +24,11 @@ app.use(express.json({ limit: '5mb' })); // Limit JSON payload size
 
 const PORT = process.env.PORT || 5000;
 
+// Add a root route for Railway/health check
+app.get('/', (req, res) => {
+  res.send('DostifyApp backend is running!');
+});
+
 // In-memory data structures for chat rooms and typing users
 const chatRooms = {};
 const typingUsers = {};
