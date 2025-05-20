@@ -30,7 +30,7 @@ function Home() {
         } else {
           // Play alert sound if the room doesn't exist
           playAlert();
-          toast( `This This chat room doesn't exist.`, {
+          toast( `This chat room doesn't exist.`, {
             description: `Please check the code or create a new chat.`,
             action: {
               label: "New chat",
