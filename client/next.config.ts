@@ -4,16 +4,14 @@ const nextConfig: NextConfig = {
   
   async rewrites() {
     return [
-      {
-        source: '/api/:path*',
+      {        source: '/api/:path*',
         destination: process.env.NODE_ENV === 'production' 
-          ? process.env.SERVER_URL || 'https://dostifyapp-server.vercel.app/api/:path*'
+          ? process.env.SERVER_URL || 'https://dostifyapp-production.up.railway.app/api/:path*'
           : 'http://localhost:5000/api/:path*',
       },
-      {
-        source: '/socket.io/:path*',
+      {        source: '/socket.io/:path*',
         destination: process.env.NODE_ENV === 'production'
-          ? 'https://dostifyapp-server.vercel.app/socket.io/:path*'
+          ? 'https://dostifyapp-production.up.railway.app/socket.io/:path*'
           : 'http://localhost:5000/socket.io/:path*',
       }
     ];
