@@ -7,10 +7,14 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { nanoid } from "@reduxjs/toolkit";
+import { toast } from "sonner";
+import { useAlertSound } from '@/hooks/useAlertSound';
 
 function Home() {
   const [chatCode, setChatCode] = useState( "" );
   const router = useRouter();
+  // Importing the alert sound hook
+  const { playAlert } = useAlertSound();
 
   const handleInputChange = ( e: React.ChangeEvent<HTMLInputElement> ) => {
     setChatCode( e.target.value );
@@ -24,11 +28,21 @@ function Home() {
         if ( data.exists ) {
           router.push( `/chat/${chatCode}` );
         } else {
-          alert( "This chat room doesn't exist. Please check the code or create a new chat." );
+          // Play alert sound if the room doesn't exist
+          playAlert();
+          toast( `This This chat room doesn't exist.`, {
+            description: `Please check the code or create a new chat.`,
+            action: {
+              label: "New chat",
+              onClick: () => handleStartNewChat(),
+            },
+          } );
         }
       } catch ( error ) {
         console.error( "Error checking room:", error );
-        alert( "Unable to check room status. Please try again." );
+        toast( `Error checking room.`, {
+          description: `Please try again later.`,
+        } );
       }
     }
   };
@@ -72,7 +86,7 @@ function Home() {
             />
             <div className="absolute right-1 top-1/2 -translate-y-1/2">
               <Button
-               title="Click join chat"
+                title="Click join chat"
                 size="icon"
                 className="size-9 rounded-full bg-zinc-950 text-white dark:bg-zinc-100 dark:text-zinc-950 hover:bg-zinc-900 dark:hover:bg-zinc-200"
                 onClick={handleJoinChat}
