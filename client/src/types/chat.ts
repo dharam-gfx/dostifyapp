@@ -23,7 +23,7 @@ export interface ChatMessage {
 
   /** Unique ID for the message to prevent duplicates */
   messageId?: string;
-  
+
   /** Reply information if this message is a reply to another message */
   replyTo?: {
     /** The message ID being replied to */
@@ -68,7 +68,7 @@ export interface ChatControlsProps {
   input: string;
 
   /** Function to update input */
-  setInput: ( val: string ) => void;
+  setInput: (val: string) => void;
 
   /** Handler for sending messages */
   onSend: () => void;
@@ -118,13 +118,13 @@ export interface UsePusherChatOptions {
   userId: string;
 
   /** Callback when users list changes */
-  onUsersChange: ( users: string[] | ( ( prev: string[] ) => string[] ) ) => void;
+  onUsersChange: (users: string[] | ((prev: string[]) => string[])) => void;
 
   /** Callback when a new message is received */
-  onMessageReceived: ( message: ChatMessage, isClientEvent: boolean ) => void;
+  onMessageReceived: (message: ChatMessage, isClientEvent: boolean) => void;
 
   /** Callback when typing status is received */
-  onTypingStatusUpdate?: ( userId: string, isTyping: boolean ) => void;
+  onTypingStatusUpdate?: (userId: string, isTyping: boolean) => void;
 }
 
 /**

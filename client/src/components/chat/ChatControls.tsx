@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import { Paperclip, Smile, Image as LunarImage, Video, Mic, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -8,13 +8,24 @@ import ReplyBar from "./ReplyBar";
 
 let typingTimeout: NodeJS.Timeout | null = null;
 const ChatControls: React.FC<ChatControlsProps> = ({ input, setInput, onSend, sendTyping, isConnected = true }) => {
-  const { replyInfo, clearReply } = useReply();
-  const handleSend = () => {
+  const { replyInfo, clearReply, shouldFocusInput, setShouldFocusInput } = useReply();
+  const inputRef = useRef<HTMLTextAreaElement>(null);
+
+  // Focus input when reply is clicked
+  useEffect(() => {
+    if (shouldFocusInput && inputRef.current) {
+      inputRef.current.focus();
+      // Reset the flag after focusing
+      setShouldFocusInput(false);
+    }
+  }, [shouldFocusInput, setShouldFocusInput]); const handleSend = () => {
     if (input.trim() === '') return;
     // Pass the actual input text to onSend and let onSend handle the reply info
     onSend(input);
     // Clear reply after sending
     clearReply();
+    // Clear input field after sending
+    setInput('');
   };
 
   return (
@@ -22,8 +33,8 @@ const ChatControls: React.FC<ChatControlsProps> = ({ input, setInput, onSend, se
       <div className="relative order-2 px-2 sm:px-0 pb-5 md:order-1">
         <div className="rounded-3xl border-input bg-card/80 relative z-10 overflow-hidden border p-0 pb-2 shadow-xs backdrop-blur-xl">
           {/* Show reply bar if replying to a message */}
-          {replyInfo && <ReplyBar />}
-          <textarea
+          {replyInfo && <ReplyBar />}          <textarea
+            ref={inputRef}
             className={cn(
               "border-input placeholder:text-muted-foreground placeholder:text-sm focus-visible:border-ring focus-visible:ring-ring/50",
               "flex rounded-md border px-3 py-2 text-primary w-full resize-none border-none bg-transparent shadow-none outline-none",

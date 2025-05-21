@@ -39,8 +39,7 @@ const ChatRoom = () => {
   // Memoize the typing indicator check
   const showTypingIndicator = useMemo(() => {
     return usersTyping.length > 0 && !usersTyping.includes(userId);
-  }, [usersTyping, userId]);
-  // Handle sending a message with reply data
+  }, [usersTyping, userId]);  // Handle sending a message with reply data
   const handleSendWithReply = (content?: string) => {
     if (!content || content.trim() === "") return;
     
@@ -53,6 +52,7 @@ const ChatRoom = () => {
     
     sendMessage(content, userId, replyData);
     clearReply(); // Clear the reply after sending
+    setInput(""); // Clear the input field after sending
   };
 
   return (

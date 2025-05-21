@@ -68,14 +68,14 @@ export interface ChatControlsProps {
     input: string;
 
     /** Function to update input */
-    setInput: ( val: string ) => void;    /** Handler for sending messages */
+    setInput: (val: string) => void;    /** Handler for sending messages */
     onSend: (content?: string) => void;
 
     /** Whether the chat is connected to the server */
     isConnected?: boolean;
 
     /** Function to send typing status updates */
-    sendTyping?: ( isTyping: boolean ) => void;
+    sendTyping?: (isTyping: boolean) => void;
 }
 
 /**

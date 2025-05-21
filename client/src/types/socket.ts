@@ -54,12 +54,12 @@ export interface UserEvents {
 export interface SocketHookReturn {
     socket: Socket | null;
     userId: string;
-    sendMessage: ( 
-        encryptedData: string, 
-        userId: string, 
-        replyTo?: { message: string; sender?: string; messageId?: string; } 
+    sendMessage: (
+        encryptedData: string,
+        userId: string,
+        replyTo?: { message: string; sender?: string; messageId?: string; }
     ) => void;
-    sendTyping: ( isTyping: boolean ) => void;
+    sendTyping: (isTyping: boolean) => void;
     usersTyping: string[];
     userEvents: UserEvents;
     users: string[];

@@ -17,11 +17,11 @@ const ReplyPreview: React.FC<{ message: string; sender?: string; }> = ({ message
   </div>
 );
 
-export const IncomingMessage: React.FC<{ 
-  message: string; 
-  timestamp: string; 
+export const IncomingMessage: React.FC<{
+  message: string;
+  timestamp: string;
   userName: string;
-  messageId?: string; 
+  messageId?: string;
   replyTo?: { message: string; sender?: string; messageId?: string; }
 }> = ({ message, timestamp, userName, messageId, replyTo }) => {
   const [isExpanded, setIsExpanded] = useState(false);
@@ -30,8 +30,8 @@ export const IncomingMessage: React.FC<{
   const messageLength = message.length;
   const isLongMessage = messageLength > 150;
   const messageRef = useRef<HTMLDivElement>(null);
-  const { setReplyInfo } = useReply();
-  
+  const { setReplyInfo, setShouldFocusInput } = useReply();
+
   const handleToggle = () => {
     setIsExpanded(!isExpanded);
     // If collapsing, scroll to the top of this message
@@ -49,15 +49,16 @@ export const IncomingMessage: React.FC<{
       setCopied(false);
     }, 2000);
   };
-
   const handleReply = () => {
     setReplyInfo({
       message,
       sender: userName,
       messageId
     });
+    // Set flag to focus the input after setting reply info
+    setShouldFocusInput(true);
   };
-    
+
   return (
     <div className="flex mb-1" ref={messageRef}>
       <div className="w-6 h-6 rounded-full flex items-center justify-center mr-1 bg-gray-200 relative">
@@ -65,7 +66,7 @@ export const IncomingMessage: React.FC<{
         <span className="absolute inset-0 rounded-full border border-indigo-300 dark:border-transparent pointer-events-none"></span>
         <User className="h-4 w-4 text-gray-400 dark:text-gray-600 relative z-10" />
       </div>
-      <div 
+      <div
         className="flex max-w-xs border rounded-md p-2 gap-2 shadow text-xs break-words whitespace-pre-line relative group"
         onMouseEnter={() => setIsHovering(true)}
         onMouseLeave={() => setIsHovering(false)}
@@ -73,18 +74,18 @@ export const IncomingMessage: React.FC<{
       >
         <div className="w-full">
           <span className="text-rose-500">{userName}</span>
-          
+
           {/* Show reply preview if this message is a reply */}
           {replyTo && (
             <ReplyPreview message={replyTo.message} sender={replyTo.sender} />
           )}
-          
+
           <p className="text-xs pt-1 break-words whitespace-pre-line w-full">
             {isLongMessage && !isExpanded ? message.substring(0, 150) + "..." : message}
           </p>
           {isLongMessage && (
-            <button 
-              onClick={handleToggle} 
+            <button
+              onClick={handleToggle}
               className="text-[10px] text-blue-500 mt-1 hover:underline flex items-center font-bold"
             >
               {isExpanded ? (
@@ -95,7 +96,7 @@ export const IncomingMessage: React.FC<{
             </button>
           )}
           <span className="block text-[9px] text-gray-400 mt-0.5">{timestamp}</span>
-          
+
           {/* Action buttons on hover */}
           <div className="absolute right-2 bottom-2 flex space-x-1">
             {/* Reply button */}
@@ -107,7 +108,7 @@ export const IncomingMessage: React.FC<{
             >
               <Reply className="h-3.5 w-3.5 md:h-3 md:w-3 text-gray-500" />
             </button>
-            
+
             {/* Copy button */}
             <button
               onClick={handleCopyMessage}
@@ -128,8 +129,8 @@ export const IncomingMessage: React.FC<{
   );
 };
 
-export const OutgoingMessage: React.FC<{ 
-  message: string; 
+export const OutgoingMessage: React.FC<{
+  message: string;
   timestamp: string;
   messageId?: string;
   replyTo?: { message: string; sender?: string; messageId?: string; }
@@ -140,8 +141,8 @@ export const OutgoingMessage: React.FC<{
   const messageLength = message.length;
   const isLongMessage = messageLength > 150;
   const messageRef = useRef<HTMLDivElement>(null);
-  const { setReplyInfo } = useReply();
-  
+  const { setReplyInfo, setShouldFocusInput } = useReply();
+
   const handleToggle = () => {
     setIsExpanded(!isExpanded);
     // If collapsing, scroll to the top of this message
@@ -159,18 +160,19 @@ export const OutgoingMessage: React.FC<{
       setCopied(false);
     }, 2000);
   };
-
   const handleReply = () => {
     setReplyInfo({
       message,
       sender: "You",
       messageId
     });
+    // Set flag to focus the input after setting reply info
+    setShouldFocusInput(true);
   };
-  
+
   return (
-    <div className="flex justify-end mb-1" ref={messageRef}>      
-      <div 
+    <div className="flex justify-end mb-1" ref={messageRef}>
+      <div
         className="flex max-w-xs border rounded-md p-2 gap-2 shadow text-xs break-words whitespace-pre-line relative group"
         onMouseEnter={() => setIsHovering(true)}
         onMouseLeave={() => setIsHovering(false)}
@@ -183,13 +185,13 @@ export const OutgoingMessage: React.FC<{
           {replyTo && (
             <ReplyPreview message={replyTo.message} sender={replyTo.sender} />
           )}
-          
+
           <p className="text-xs pt-1 break-words whitespace-pre-line w-full">
             {isLongMessage && !isExpanded ? message.substring(0, 150) + "..." : message}
           </p>
           {isLongMessage && (
-            <button 
-              onClick={handleToggle} 
+            <button
+              onClick={handleToggle}
               className="text-[10px] text-blue-500 mt-1 hover:underline flex items-center font-bold"
             >
               {isExpanded ? (
@@ -200,7 +202,7 @@ export const OutgoingMessage: React.FC<{
             </button>
           )}
           <span className="block text-[9px] text-gray-400 mt-0.5">{timestamp}</span>
-          
+
           {/* Action buttons on hover */}
           <div className="absolute right-2 bottom-2 flex space-x-1">
             {/* Reply button */}
@@ -212,7 +214,7 @@ export const OutgoingMessage: React.FC<{
             >
               <Reply className="h-3.5 w-3.5 md:h-3 md:w-3 text-gray-500" />
             </button>
-            
+
             {/* Copy button */}
             <button
               onClick={handleCopyMessage}

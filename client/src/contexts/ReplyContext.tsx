@@ -2,36 +2,47 @@ import React, { createContext, useContext, useState, ReactNode } from 'react';
 
 // Define the reply information type
 export interface ReplyInfo {
-  messageId?: string;
-  message: string;
-  sender?: string;
+    messageId?: string;
+    message: string;
+    sender?: string;
 }
 
 // Define the context type
 interface ReplyContextType {
-  replyInfo: ReplyInfo | null;
-  setReplyInfo: (info: ReplyInfo | null) => void;
-  clearReply: () => void;
+    replyInfo: ReplyInfo | null;
+    setReplyInfo: (info: ReplyInfo | null) => void;
+    clearReply: () => void;
+    shouldFocusInput: boolean;
+    setShouldFocusInput: (shouldFocus: boolean) => void;
 }
 
 // Create the context with default values
 const ReplyContext = createContext<ReplyContextType>({
-  replyInfo: null,
-  setReplyInfo: () => {},
-  clearReply: () => {},
+    replyInfo: null,
+    setReplyInfo: () => { },
+    clearReply: () => { },
+    shouldFocusInput: false,
+    setShouldFocusInput: () => { },
 });
 
 // Create a provider component
 export const ReplyProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [replyInfo, setReplyInfo] = useState<ReplyInfo | null>(null);
+    const [replyInfo, setReplyInfo] = useState<ReplyInfo | null>(null);
+    const [shouldFocusInput, setShouldFocusInput] = useState<boolean>(false);
 
-  const clearReply = () => setReplyInfo(null);
+    const clearReply = () => setReplyInfo(null);
 
-  return (
-    <ReplyContext.Provider value={{ replyInfo, setReplyInfo, clearReply }}>
-      {children}
-    </ReplyContext.Provider>
-  );
+    return (
+        <ReplyContext.Provider value={{
+            replyInfo,
+            setReplyInfo,
+            clearReply,
+            shouldFocusInput,
+            setShouldFocusInput
+        }}>
+            {children}
+        </ReplyContext.Provider>
+    );
 };
 
 // Create a custom hook to use the reply context
