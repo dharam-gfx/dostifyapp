@@ -8,6 +8,12 @@ interface ChatMessage {
   message: string;
   timestamp: string;
   isSent?: boolean;
+  messageId?: string;
+  replyTo?: {
+    messageId?: string;
+    message: string;
+    sender?: string;
+  };
 }
 
 interface ChatFeedProps {
@@ -71,13 +77,23 @@ const ChatFeed: FC<ChatFeedProps> = ({ messages, messagesEndRef }) => {
           const animationClass = isLatestMessage && isNearBottom ? "animate-fade-in-up" : "";
           
           return (
-            <div key={index} className={`transition-all duration-300 ${animationClass}`}>
-              {chat.type === 'system' ? (
+            <div key={index} className={`transition-all duration-300 ${animationClass}`}>              {chat.type === 'system' ? (
                 <SystemMessage message={chat.message} timestamp={chat.timestamp} />
               ) : !chat.isSent ? (
-                <IncomingMessage message={chat.message} timestamp={chat.timestamp} userName={chat.sender ?? "User"} />
+                <IncomingMessage 
+                  message={chat.message} 
+                  timestamp={chat.timestamp} 
+                  userName={chat.sender ?? "User"}
+                  messageId={chat.messageId}
+                  replyTo={chat.replyTo}
+                />
               ) : (
-                <OutgoingMessage message={chat.message} timestamp={chat.timestamp} />
+                <OutgoingMessage 
+                  message={chat.message} 
+                  timestamp={chat.timestamp}
+                  messageId={chat.messageId}
+                  replyTo={chat.replyTo}
+                />
               )}
             </div>
           );

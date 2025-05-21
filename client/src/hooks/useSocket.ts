@@ -27,12 +27,20 @@ const createSystemMessage = ( sender: string, message: string, isSent: boolean )
 } );
 
 // Helper function to create a user message (actual chat content)
-const createUserMessage = ( sender: string, message: string, isSent: boolean ): ChatMessage => ( {
+const createUserMessage = (
+    sender: string, 
+    message: string, 
+    isSent: boolean, 
+    messageId?: string,
+    replyTo?: { message: string; sender?: string; messageId?: string; }
+): ChatMessage => ( {
     type: 'user',
     sender,
     message,
     timestamp: createMessageTimestamp(),
-    isSent
+    isSent,
+    messageId: messageId || `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+    replyTo
 } );
 
 export function useSocket( roomId: string, userName: string = "" ): SocketHookReturn {
@@ -137,14 +145,12 @@ export function useSocket( roomId: string, userName: string = "" ): SocketHookRe
         socketIo.on( "users-typing", ( { userIds }: TypingEventData ) => {
             // Only show other users as typing, not yourself
             setUsersTyping( userIds.filter( ( id: string ) => id !== socketIo.id ) );
-        } );
-
-        // Handle receiving a chat message
-        socketIo.on( "receive-message", ( { encryptedData, userId }: MessageEventData ) => {
-            console.log( "Message received:", encryptedData, userId );
+        } );        // Handle receiving a chat message
+        socketIo.on( "receive-message", ( { encryptedData, userId, messageId, replyTo }: MessageEventData ) => {
+            console.log( "Message received:", encryptedData, userId, replyTo );
             setMessages( prev => ( [
                 ...prev,
-                createUserMessage( userId, encryptedData, false )
+                createUserMessage( userId, encryptedData, false, messageId, replyTo )
             ] ) );
         } );
 
@@ -158,17 +164,32 @@ export function useSocket( roomId: string, userName: string = "" ): SocketHookRe
             socketIo.disconnect();
             clearInterval( cleanupInterval );
         };
-    }, [roomId, userName] );
-
-    // Send a chat message to the server and add it to local state
-    const sendMessage = useCallback( ( encryptedData: string, userId: string ) => {
+    }, [roomId, userName] );    // Send a chat message to the server and add it to local state
+    const sendMessage = useCallback( ( 
+        encryptedData: string, 
+        userId: string, 
+        replyTo?: { message: string; sender?: string; messageId?: string; } 
+    ) => {
         if ( socket ) {
-            console.log( "Sending message:", encryptedData, userId );
-            socket.emit( "send-message", { encryptedData, userId } );
+            // Generate a unique message ID
+            const messageId = `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+            
+            console.log( "Sending message:", encryptedData, userId, replyTo );
+            
+            // Send message with optional reply info
+            socket.emit( "send-message", { 
+                encryptedData, 
+                userId,
+                messageId,
+                replyTo
+            });
+            
+            // Add message to local state
             setMessages( prev => ( [
                 ...prev,
-                createUserMessage( userId, encryptedData, true )
+                createUserMessage( userId, encryptedData, true, messageId, replyTo )
             ] ) );
+            
             console.log( "Message sent:", messages );
         }
     }, [socket, messages] );

@@ -15,6 +15,12 @@ export interface ChatMessage {
     message: string;
     timestamp: string;
     isSent?: boolean;
+    messageId?: string;
+    replyTo?: {
+        messageId?: string;
+        message: string;
+        sender?: string;
+    };
 }
 
 // Socket event data types
@@ -30,6 +36,12 @@ export interface TypingEventData {
 export interface MessageEventData {
     encryptedData: string;
     userId: string;
+    messageId?: string;
+    replyTo?: {
+        messageId?: string;
+        message: string;
+        sender?: string;
+    };
 }
 
 // User events tracking
@@ -42,7 +54,11 @@ export interface UserEvents {
 export interface SocketHookReturn {
     socket: Socket | null;
     userId: string;
-    sendMessage: ( encryptedData: string, userId: string ) => void;
+    sendMessage: ( 
+        encryptedData: string, 
+        userId: string, 
+        replyTo?: { message: string; sender?: string; messageId?: string; } 
+    ) => void;
     sendTyping: ( isTyping: boolean ) => void;
     usersTyping: string[];
     userEvents: UserEvents;

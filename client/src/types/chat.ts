@@ -23,6 +23,16 @@ export interface ChatMessage {
 
   /** Unique ID for the message to prevent duplicates */
   messageId?: string;
+  
+  /** Reply information if this message is a reply to another message */
+  replyTo?: {
+    /** The message ID being replied to */
+    messageId?: string;
+    /** The message text being replied to */
+    message: string;
+    /** The sender of the original message */
+    sender?: string;
+  };
 }
 
 /**

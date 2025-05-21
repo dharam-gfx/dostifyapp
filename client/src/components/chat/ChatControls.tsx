@@ -3,13 +3,26 @@ import { Paperclip, Smile, Image as LunarImage, Video, Mic, Send } from "lucide-
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { ChatControlsProps } from "@/types/components";
+import { useReply } from "@/contexts/ReplyContext";
+import ReplyBar from "./ReplyBar";
 
 let typingTimeout: NodeJS.Timeout | null = null;
-const ChatControls: React.FC<ChatControlsProps> = ( { input, setInput, onSend, sendTyping, isConnected = true } ) => {
+const ChatControls: React.FC<ChatControlsProps> = ({ input, setInput, onSend, sendTyping, isConnected = true }) => {
+  const { replyInfo, clearReply } = useReply();
+  const handleSend = () => {
+    if (input.trim() === '') return;
+    // Pass the actual input text to onSend and let onSend handle the reply info
+    onSend(input);
+    // Clear reply after sending
+    clearReply();
+  };
+
   return (
     <div className="fixed inset-x-0 bottom-0 z-40 mx-auto w-full max-w-2xl">
       <div className="relative order-2 px-2 sm:px-0 pb-5 md:order-1">
         <div className="rounded-3xl border-input bg-card/80 relative z-10 overflow-hidden border p-0 pb-2 shadow-xs backdrop-blur-xl">
+          {/* Show reply bar if replying to a message */}
+          {replyInfo && <ReplyBar />}
           <textarea
             className={cn(
               "border-input placeholder:text-muted-foreground placeholder:text-sm focus-visible:border-ring focus-visible:ring-ring/50",
@@ -21,35 +34,34 @@ const ChatControls: React.FC<ChatControlsProps> = ( { input, setInput, onSend, s
             style={{ height: 44 }}
             value={input}
             onChange={e => {
-              setInput( e.target.value );
+              setInput(e.target.value);
 
               // Send typing immediately
-              if ( e.target.value.length > 0 ) {
-                sendTyping?.( true );
+              if (e.target.value.length > 0) {
+                sendTyping?.(true);
               } else {
-                sendTyping?.( false );
+                sendTyping?.(false);
               }
 
               // Clear previous timeout
-              if ( typingTimeout ) {
-                clearTimeout( typingTimeout );
+              if (typingTimeout) {
+                clearTimeout(typingTimeout);
               }
 
               // Set timeout to stop typing after 2s of inactivity
-              typingTimeout = setTimeout( () => {
-                sendTyping?.( false );
+              typingTimeout = setTimeout(() => {
+                sendTyping?.(false);
                 typingTimeout = null;
-              }, 2000 );
-            }}
-            onKeyDown={e => {
-              if ( e.key === "Enter" && !e.shiftKey ) {
+              }, 2000);
+            }} onKeyDown={e => {
+              if (e.key === "Enter" && !e.shiftKey) {
                 e.preventDefault();
-                onSend();
-                sendTyping?.( false );
+                handleSend();
+                sendTyping?.(false);
 
                 // Clear typing timeout on send
-                if ( typingTimeout ) {
-                  clearTimeout( typingTimeout );
+                if (typingTimeout) {
+                  clearTimeout(typingTimeout);
                   typingTimeout = null;
                 }
               }
@@ -117,13 +129,13 @@ const ChatControls: React.FC<ChatControlsProps> = ( { input, setInput, onSend, s
                 aria-label="Start recording"
               >
                 <Mic className="size-4" />
-              </Button>
-              {/* Send */}              <Button
+              </Button>              {/* Send */}
+              <Button
                 type="button"
                 size="icon"
                 className="size-8 rounded-full bg-primary text-primary-foreground hover:bg-primary/90"
                 aria-label="Send message"
-                onClick={onSend}
+                onClick={handleSend}
                 disabled={!input.trim() || !isConnected}
               >
                 <Send className="size-4" />
