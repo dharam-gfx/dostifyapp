@@ -10,12 +10,37 @@ export const SystemMessage: React.FC<{ message: string; timestamp: string }> = (
 );
 
 // Reusable reply preview component
-const ReplyPreview: React.FC<{ message: string; sender?: string; }> = ({ message, sender }) => (
-  <div className="bg-gray-100 dark:bg-gray-800 p-1.5 rounded-sm mb-1 border-l-2 border-blue-400 text-[10px] max-h-10 overflow-hidden">
-    <div className="font-semibold text-blue-500">{sender ? sender : 'User'}</div>
-    <div className="text-gray-600 dark:text-gray-400 line-clamp-1">{message}</div>
-  </div>
-);
+const ReplyPreview: React.FC<{ 
+  message: string; 
+  sender?: string; 
+  messageId?: string; 
+}> = ({ message, sender, messageId }) => {
+  const { setScrollToMessageId } = useReply();
+  
+  const handleClick = () => {
+    if (messageId) {
+      // Set the message ID to scroll to
+      setScrollToMessageId(messageId);
+    }
+  };
+  return (
+    <div 
+      className={`bg-gray-100 dark:bg-gray-800 p-1.5 rounded-sm mb-1 border-l-2 border-blue-400 text-[10px] max-h-10 overflow-hidden group ${messageId ? 'cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700' : ''}`}
+      onClick={messageId ? handleClick : undefined}
+      title={messageId ? "Click to view original message" : ""}
+    >
+      <div className="flex items-center">
+        <div className="font-semibold text-blue-500">{sender ? sender : 'User'}</div>
+        {messageId && (
+          <span className="ml-1 text-[8px] text-blue-500 opacity-0 group-hover:opacity-100 transition-opacity">
+            (click to view)
+          </span>
+        )}
+      </div>
+      <div className="text-gray-600 dark:text-gray-400 line-clamp-1">{message}</div>
+    </div>
+  );
+};
 
 export const IncomingMessage: React.FC<{
   message: string;
@@ -71,13 +96,16 @@ export const IncomingMessage: React.FC<{
         onMouseEnter={() => setIsHovering(true)}
         onMouseLeave={() => setIsHovering(false)}
         onTouchStart={() => setIsHovering(true)}
-      >
-        <div className="w-full">
+      >        <div className="w-full">
           <span className="text-rose-500">{userName}</span>
-
+          
           {/* Show reply preview if this message is a reply */}
           {replyTo && (
-            <ReplyPreview message={replyTo.message} sender={replyTo.sender} />
+            <ReplyPreview 
+              message={replyTo.message} 
+              sender={replyTo.sender} 
+              messageId={replyTo.messageId}
+            />
           )}
 
           <p className="text-xs pt-1 break-words whitespace-pre-line w-full">
@@ -177,13 +205,16 @@ export const OutgoingMessage: React.FC<{
         onMouseEnter={() => setIsHovering(true)}
         onMouseLeave={() => setIsHovering(false)}
         onTouchStart={() => setIsHovering(true)}
-      >
-        <div className="w-full">
+      >        <div className="w-full">
           <span className="text-rose-500">You</span>
 
           {/* Show reply preview if this message is a reply */}
           {replyTo && (
-            <ReplyPreview message={replyTo.message} sender={replyTo.sender} />
+            <ReplyPreview 
+              message={replyTo.message} 
+              sender={replyTo.sender} 
+              messageId={replyTo.messageId}
+            />
           )}
 
           <p className="text-xs pt-1 break-words whitespace-pre-line w-full">

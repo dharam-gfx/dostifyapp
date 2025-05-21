@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState, useRef, type FC, type RefObject } from "react";
 import { SystemMessage, IncomingMessage, OutgoingMessage } from "./MessageBubble";
+import { useReply } from "@/contexts/ReplyContext";
 
 interface ChatMessage {
   type: string;
@@ -25,8 +26,33 @@ const ChatFeed: FC<ChatFeedProps> = ({ messages, messagesEndRef }) => {
   const [showScrollButton, setShowScrollButton] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
   const [isNearBottom, setIsNearBottom] = useState(true);
-  const chatContainerRef = useRef<HTMLDivElement>(null);
-  const prevMessagesLengthRef = useRef(messages.length);
+  const chatContainerRef = useRef<HTMLDivElement>(null);  const prevMessagesLengthRef = useRef(messages.length);
+  const messageRefs = useRef<Record<string, HTMLDivElement | null>>({});
+  const { scrollToMessageId, setScrollToMessageId } = useReply();
+  // Effect to handle scrolling to a specific message when ID changes
+  useEffect(() => {
+    if (scrollToMessageId && messageRefs.current[scrollToMessageId]) {
+      // Scroll to the message with a highlight effect
+      messageRefs.current[scrollToMessageId]?.scrollIntoView({ 
+        behavior: 'smooth', 
+        block: 'center' 
+      });
+      
+      // Add a temporary highlight effect
+      const messageEl = messageRefs.current[scrollToMessageId];
+      if (messageEl) {
+        messageEl.classList.add('message-highlight');
+        
+        // Remove the highlight class after animation completes
+        setTimeout(() => {
+          messageEl.classList.remove('message-highlight');
+        }, 2000);
+      }
+      
+      // Reset the scroll ID after navigation
+      setTimeout(() => setScrollToMessageId(null), 100);
+    }
+  }, [scrollToMessageId, setScrollToMessageId]);
 
   // Handle auto-scrolling and unread messages
   useEffect(() => {
@@ -71,13 +97,25 @@ const ChatFeed: FC<ChatFeedProps> = ({ messages, messagesEndRef }) => {
     onScroll={handleScroll}
     className="overflow-y-auto p-2 pb-24 flex flex-col justify-end relative custom-scrollbar"
   >
-    <div className="space-y-2">
-      {messages.map((chat, index) => {
+    <div className="space-y-2">      {messages.map((chat, index) => {
         const isLatestMessage = index === messages.length - 1;
         const animationClass = isLatestMessage && isNearBottom ? "animate-fade-in-up" : "";
-
+        
+        // Create a ref callback to store references to message elements by messageId
+        const setMessageRef = (element: HTMLDivElement | null) => {
+          if (chat.messageId && element) {
+            messageRefs.current[chat.messageId] = element;
+          }
+        };        // Add a highlight class if this is the message we're scrolling to
+        const isTargetMessage = chat.messageId === scrollToMessageId;
+        const highlightClass = isTargetMessage ? "message-highlight" : "";
+        
         return (
-          <div key={index} className={`transition-all duration-300 ${animationClass}`}>
+          <div 
+            key={index} 
+            ref={setMessageRef}
+            className={`transition-all duration-300 ${animationClass} ${highlightClass}`}
+          >
             {chat.type === 'system' ? (
               <SystemMessage message={chat.message} timestamp={chat.timestamp} />
             ) : !chat.isSent ? (

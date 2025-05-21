@@ -1,0 +1,33 @@
+/* Message highlight animation when navigating to a message from a reply */
+@keyframes highlight-pulse {
+  0% {
+    background-color: rgba(59, 130, 246, 0);
+  }
+  20% {
+    background-color: rgba(59, 130, 246, 0.2);
+  }
+  100% {
+    background-color: rgba(59, 130, 246, 0);
+  }
+}
+
+.message-highlight {
+  animation: highlight-pulse 2s ease-in-out;
+}
+
+/* Dark mode version */
+.dark .message-highlight {
+  animation-name: highlight-pulse-dark;
+}
+
+@keyframes highlight-pulse-dark {
+  0% {
+    background-color: rgba(30, 64, 175, 0);
+  }
+  20% {
+    background-color: rgba(30, 64, 175, 0.3);
+  }
+  100% {
+    background-color: rgba(30, 64, 175, 0);
+  }
+}

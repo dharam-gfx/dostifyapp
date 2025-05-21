@@ -14,6 +14,8 @@ interface ReplyContextType {
     clearReply: () => void;
     shouldFocusInput: boolean;
     setShouldFocusInput: (shouldFocus: boolean) => void;
+    scrollToMessageId: string | null;
+    setScrollToMessageId: (messageId: string | null) => void;
 }
 
 // Create the context with default values
@@ -23,22 +25,25 @@ const ReplyContext = createContext<ReplyContextType>({
     clearReply: () => { },
     shouldFocusInput: false,
     setShouldFocusInput: () => { },
+    scrollToMessageId: null,
+    setScrollToMessageId: () => { },
 });
 
 // Create a provider component
 export const ReplyProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     const [replyInfo, setReplyInfo] = useState<ReplyInfo | null>(null);
     const [shouldFocusInput, setShouldFocusInput] = useState<boolean>(false);
+    const [scrollToMessageId, setScrollToMessageId] = useState<string | null>(null);
 
-    const clearReply = () => setReplyInfo(null);
-
-    return (
+    const clearReply = () => setReplyInfo(null);    return (
         <ReplyContext.Provider value={{
             replyInfo,
             setReplyInfo,
             clearReply,
             shouldFocusInput,
-            setShouldFocusInput
+            setShouldFocusInput,
+            scrollToMessageId,
+            setScrollToMessageId
         }}>
             {children}
         </ReplyContext.Provider>
