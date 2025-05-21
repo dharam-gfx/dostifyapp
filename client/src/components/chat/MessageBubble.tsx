@@ -24,7 +24,7 @@ const ReplyPreview: React.FC<{
     }
   };  return (
     <div 
-      className={`bg-gray-100 dark:bg-gray-800 p-1.5 rounded-sm mb-1 border-l-2 border-blue-400 text-[10px] max-h-10 overflow-hidden group transition-all duration-200 
+      className={`mt-2 bg-gray-100 dark:bg-gray-800 p-1.5 rounded-sm mb-1 border-l-2 border-blue-400 text-[10px] max-h-10 overflow-hidden group transition-all duration-200 
         ${messageId ? 'cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 hover:border-l-4 hover:border-blue-500' : ''}`}
       onClick={messageId ? handleClick : undefined}
       title={messageId ? "Click to view original message" : ""}
@@ -108,7 +108,8 @@ export const IncomingMessage: React.FC<{
         onMouseEnter={() => setIsHovering(true)}
         onMouseLeave={() => setIsHovering(false)}
         onTouchStart={() => setIsHovering(true)}
-      >        <div className="w-full">
+      >
+        <div className="w-full">
           <span className="text-rose-500">{userName}</span>
           
           {/* Show reply preview if this message is a reply */}
@@ -120,25 +121,8 @@ export const IncomingMessage: React.FC<{
             />
           )}
 
-          <p className="text-xs pt-1 break-words whitespace-pre-line w-full">
-            {isLongMessage && !isExpanded ? message.substring(0, 150) + "..." : message}
-          </p>
-          {isLongMessage && (
-            <button
-              onClick={handleToggle}
-              className="text-[10px] text-blue-500 mt-1 hover:underline flex items-center font-bold"
-            >
-              {isExpanded ? (
-                <>Less <ChevronUp className="h-3 w-3 ml-1" /></>
-              ) : (
-                <>Read more <ChevronDown className="h-3 w-3 ml-1" /></>
-              )}
-            </button>
-          )}
-          <span className="block text-[9px] text-gray-400 mt-0.5">{timestamp}</span>
-
-          {/* Action buttons on hover */}
-          <div className="absolute right-2 bottom-2 flex space-x-1">
+          {/* Action buttons on hover - moved to top-right */}
+          <div className="absolute right-2 top-2 flex space-x-1">
             {/* Reply button */}
             <button
               onClick={handleReply}
@@ -163,6 +147,24 @@ export const IncomingMessage: React.FC<{
               )}
             </button>
           </div>
+
+          {/* Message content with right padding to avoid overlap with buttons */}
+          <p className="text-xs pt-1 pr-16 break-words whitespace-pre-line w-full">
+            {isLongMessage && !isExpanded ? message.substring(0, 150) + "..." : message}
+          </p>
+          {isLongMessage && (
+            <button
+              onClick={handleToggle}
+              className="text-[10px] text-blue-500 mt-1 hover:underline flex items-center font-bold"
+            >
+              {isExpanded ? (
+                <>Less <ChevronUp className="h-3 w-3 ml-1" /></>
+              ) : (
+                <>Read more <ChevronDown className="h-3 w-3 ml-1" /></>
+              )}
+            </button>
+          )}
+          <span className="block text-[9px] text-gray-400 mt-1.5 mb-1">{timestamp}</span>
         </div>
       </div>
     </div>
@@ -217,7 +219,8 @@ export const OutgoingMessage: React.FC<{
         onMouseEnter={() => setIsHovering(true)}
         onMouseLeave={() => setIsHovering(false)}
         onTouchStart={() => setIsHovering(true)}
-      >        <div className="w-full">
+      >
+        <div className="w-full">
           <span className="text-rose-500">You</span>
 
           {/* Show reply preview if this message is a reply */}
@@ -229,25 +232,8 @@ export const OutgoingMessage: React.FC<{
             />
           )}
 
-          <p className="text-xs pt-1 break-words whitespace-pre-line w-full">
-            {isLongMessage && !isExpanded ? message.substring(0, 150) + "..." : message}
-          </p>
-          {isLongMessage && (
-            <button
-              onClick={handleToggle}
-              className="text-[10px] text-blue-500 mt-1 hover:underline flex items-center font-bold"
-            >
-              {isExpanded ? (
-                <>Less <ChevronUp className="h-3 w-3 ml-1" /></>
-              ) : (
-                <>Read more <ChevronDown className="h-3 w-3 ml-1" /></>
-              )}
-            </button>
-          )}
-          <span className="block text-[9px] text-gray-400 mt-0.5">{timestamp}</span>
-
-          {/* Action buttons on hover */}
-          <div className="absolute right-2 bottom-2 flex space-x-1">
+          {/* Action buttons on hover - moved to top-right */}
+          <div className="absolute right-2 top-2 flex space-x-1">
             {/* Reply button */}
             <button
               onClick={handleReply}
@@ -272,6 +258,24 @@ export const OutgoingMessage: React.FC<{
               )}
             </button>
           </div>
+
+          {/* Message content with right padding to avoid overlap with buttons */}
+          <p className="text-xs pt-1 pr-16 break-words whitespace-pre-line w-full">
+            {isLongMessage && !isExpanded ? message.substring(0, 150) + "..." : message}
+          </p>
+          {isLongMessage && (
+            <button
+              onClick={handleToggle}
+              className="text-[10px] text-blue-500 mt-1 hover:underline flex items-center font-bold"
+            >
+              {isExpanded ? (
+                <>Less <ChevronUp className="h-3 w-3 ml-1" /></>
+              ) : (
+                <>Read more <ChevronDown className="h-3 w-3 ml-1" /></>
+              )}
+            </button>
+          )}
+          <span className="block text-[9px] text-gray-400 mt-1.5 mb-1">{timestamp}</span>
         </div>
       </div>
       <div className="w-6 h-6 rounded-full flex items-center justify-center ml-1 bg-gray-200 relative">
