@@ -28,8 +28,7 @@ const ChatFeed: FC<ChatFeedProps> = ({ messages, messagesEndRef }) => {
   const [isNearBottom, setIsNearBottom] = useState(true);
   const chatContainerRef = useRef<HTMLDivElement>(null);  const prevMessagesLengthRef = useRef(messages.length);
   const messageRefs = useRef<Record<string, HTMLDivElement | null>>({});
-  const { scrollToMessageId, setScrollToMessageId } = useReply();
-  // Effect to handle scrolling to a specific message when ID changes
+  const { scrollToMessageId, setScrollToMessageId } = useReply();  // Effect to handle scrolling to a specific message when ID changes
   useEffect(() => {
     if (scrollToMessageId && messageRefs.current[scrollToMessageId]) {
       // Scroll to the message with a highlight effect
@@ -38,19 +37,31 @@ const ChatFeed: FC<ChatFeedProps> = ({ messages, messagesEndRef }) => {
         block: 'center' 
       });
       
-      // Add a temporary highlight effect
+      // Add a temporary highlight effect to the message bubble
       const messageEl = messageRefs.current[scrollToMessageId];
       if (messageEl) {
-        messageEl.classList.add('message-highlight');
+        // Find the actual message bubble element (it's the child element with the border and shadow)
+        const messageBubble = messageEl.querySelector('div.border.rounded-md.p-2');
         
-        // Remove the highlight class after animation completes
-        setTimeout(() => {
-          messageEl.classList.remove('message-highlight');
-        }, 2000);
+        if (messageBubble) {
+          // Add highlight class to the message bubble for border animation
+          messageBubble.classList.add('message-highlight');
+          
+          // Remove the highlight class after animation completes
+          setTimeout(() => {
+            messageBubble.classList.remove('message-highlight');
+          }, 3000);
+        } else {
+          // Fallback to the old behavior if we can't find the bubble
+          messageEl.classList.add('message-highlight');
+          setTimeout(() => {
+            messageEl.classList.remove('message-highlight');
+          }, 3000);
+        }
       }
       
-      // Reset the scroll ID after navigation
-      setTimeout(() => setScrollToMessageId(null), 100);
+      // Reset the scroll ID after navigation, but with a delay to keep the highlight visible
+      setTimeout(() => setScrollToMessageId(null), 3100);
     }
   }, [scrollToMessageId, setScrollToMessageId]);
 
@@ -106,15 +117,11 @@ const ChatFeed: FC<ChatFeedProps> = ({ messages, messagesEndRef }) => {
           if (chat.messageId && element) {
             messageRefs.current[chat.messageId] = element;
           }
-        };        // Add a highlight class if this is the message we're scrolling to
-        const isTargetMessage = chat.messageId === scrollToMessageId;
-        const highlightClass = isTargetMessage ? "message-highlight" : "";
-        
-        return (
+        };        return (
           <div 
             key={index} 
             ref={setMessageRef}
-            className={`transition-all duration-300 ${animationClass} ${highlightClass}`}
+            className={`transition-all duration-300 ${animationClass}`}
           >
             {chat.type === 'system' ? (
               <SystemMessage message={chat.message} timestamp={chat.timestamp} />
