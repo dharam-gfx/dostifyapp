@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState, useRef, type FC, type RefObject } from "react";
-import { SystemMessage, IncomingMessage, OutgoingMessage } from "./MessageBubble";
+import { SystemMessage, IncomingMessage, OutgoingMessage } from "./MessageComponents";
 import { useReply } from "@/contexts/ReplyContext";
 
 interface ChatMessage {
