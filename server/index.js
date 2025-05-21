@@ -12,10 +12,10 @@ const server = http.createServer(app);
 
 // Setup Socket.IO with CORS
 const io = new Server(server, {
-  ...socketCorsConfig,
-  maxHttpBufferSize: 5e6, // 5MB max message size
-  pingTimeout: 30000,     // Faster disconnection detection
-  connectTimeout: 10000,  // Faster connection timeout
+    ...socketCorsConfig,
+    maxHttpBufferSize: 5e6, // 5MB max message size
+    pingTimeout: 30000,     // Faster disconnection detection
+    connectTimeout: 10000,  // Faster connection timeout
 });
 
 // Configure CORS for the Express app
@@ -26,7 +26,7 @@ const PORT = process.env.PORT || 5000;
 
 // Add a root route for Railway/health check
 app.get('/', (req, res) => {
-  res.send('DostifyApp backend is running!');
+    res.send('DostifyApp backend is running!');
 });
 
 // In-memory data structures for chat rooms and typing users
@@ -72,12 +72,15 @@ io.on('connection', (socket) => {
         // Notify users in the room
         const usersArr = Array.from(chatRooms[roomId].users).map(u => u.name);
         socket.emit('joined-room', { userId, users: usersArr });
-        socket.to(roomId).emit('user-joined', { userId, users: usersArr });
-
-        // Handle sending messages
-        socket.on('send-message', ({ encryptedData, userId }) => {
-            console.log(`Message from ${userId} in room ${roomId}:`, encryptedData);
-            socket.to(roomId).emit('receive-message', { encryptedData, userId });
+        socket.to(roomId).emit('user-joined', { userId, users: usersArr });        // Handle sending messages
+        socket.on('send-message', ({ encryptedData, userId, messageId, replyTo }) => {
+            console.log(`Message from ${userId} in room ${roomId}:`, encryptedData, replyTo ? 'Reply to: ' + replyTo.messageId : '');
+            socket.to(roomId).emit('receive-message', {
+                encryptedData,
+                userId,
+                messageId,
+                replyTo
+            });
         });
 
         // Handle typing indicator
