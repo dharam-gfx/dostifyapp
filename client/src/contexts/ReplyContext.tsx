@@ -35,7 +35,7 @@ export const ReplyProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     const [shouldFocusInput, setShouldFocusInput] = useState<boolean>(false);
     const [scrollToMessageId, setScrollToMessageId] = useState<string | null>(null);
 
-    const clearReply = () => setReplyInfo(null);    return (
+    const clearReply = () => setReplyInfo(null); return (
         <ReplyContext.Provider value={{
             replyInfo,
             setReplyInfo,
