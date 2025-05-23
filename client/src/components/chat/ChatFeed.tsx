@@ -106,7 +106,7 @@ const ChatFeed: FC<ChatFeedProps> = ({ messages, messagesEndRef }) => {
   return (<div
     ref={chatContainerRef}
     onScroll={handleScroll}
-    className="overflow-y-auto p-2 pb-24 flex flex-col justify-end relative custom-scrollbar"
+    className="overflow-y-auto p-2 flex flex-col justify-end relative custom-scrollbar"
   >
     <div className="space-y-2">      {messages.map((chat, index) => {
         const isLatestMessage = index === messages.length - 1;
