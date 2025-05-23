@@ -41,7 +41,7 @@ const ChatFeed: FC<ChatFeedProps> = ({ messages, messagesEndRef }) => {
       const messageEl = messageRefs.current[scrollToMessageId];
       if (messageEl) {
         // Find the actual message bubble element (it's the child element with the border and shadow)
-        const messageBubble = messageEl.querySelector('div.border.rounded-md.p-2');
+        const messageBubble = messageEl.querySelector('.message-bubble');
         
         if (messageBubble) {
           // Add highlight class to the message bubble for border animation

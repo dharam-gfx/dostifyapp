@@ -60,7 +60,7 @@ export const OutgoingMessage: React.FC<OutgoingMessageProps> = ( {
         <div className="flex flex-col items-end mb-2" ref={messageRef}>
             <div className="flex justify-end">
                 <div
-                    className="flex max-w-xs border rounded-md p-2 gap-2 shadow text-xs break-words whitespace-pre-line relative"
+                    className="message-bubble flex max-w-xs border rounded-md p-2 gap-2 shadow text-xs break-words whitespace-pre-line relative"
                     onMouseEnter={() => setIsHovering( true )}
                     onMouseLeave={() => setIsHovering( false )}
                     onTouchStart={() => setIsHovering( true )}

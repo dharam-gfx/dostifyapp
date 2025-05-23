@@ -67,7 +67,7 @@ export const IncomingMessage: React.FC<IncomingMessageProps> = ( {
                     <User className="h-4 w-4 text-gray-400 dark:text-gray-600 relative z-10" />
                 </div>
                 <div
-                    className="flex max-w-xs border rounded-md p-2 gap-2 shadow text-xs break-words whitespace-pre-line relative"
+                    className="message-bubble flex max-w-xs border rounded-md p-2 gap-2 shadow text-xs break-words whitespace-pre-line relative"
                     onMouseEnter={() => setIsHovering( true )}
                     onMouseLeave={() => setIsHovering( false )}
                     onTouchStart={() => setIsHovering( true )}

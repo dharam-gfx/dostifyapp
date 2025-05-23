@@ -7,7 +7,7 @@ import { ChatRoomHeaderProps } from "@/types/components";
 const ChatRoomHeader: React.FC<ChatRoomHeaderProps> = ( { roomId, isConnected, userCount } ) => {
     const { deliveryWorking } = useChatState();
     return (
-        <div className="flex w-full items-center justify-between py-4">
+        <div className="flex w-full items-center justify-between py-4 backdrop-blur-md bg-background/80">
             <div className="flex-1 flex justify-center items-center gap-4">
                 <div className="flex items-center space-x-2">
 
