@@ -19,26 +19,26 @@ interface OutgoingMessageProps {
 /**
  * Outgoing message component for messages sent by the current user
  */
-export const OutgoingMessage: React.FC<OutgoingMessageProps> = ({
+export const OutgoingMessage: React.FC<OutgoingMessageProps> = ( {
     message,
     timestamp,
     messageId,
     replyTo
-}) => {
-    const [isExpanded, setIsExpanded] = useState(false);
-    const [isHovering, setIsHovering] = useState(false);
+} ) => {
+    const [isExpanded, setIsExpanded] = useState( false );
+    const [isHovering, setIsHovering] = useState( false );
     const messageLength = message.length;
     const isLongMessage = messageLength > 150;
-    const messageRef = useRef<HTMLDivElement>(null);
+    const messageRef = useRef<HTMLDivElement>( null );
     const { setReplyInfo, setShouldFocusInput } = useReply();
 
     const handleToggle = () => {
-        setIsExpanded(!isExpanded);
+        setIsExpanded( !isExpanded );
         // If collapsing, scroll to the top of this message
-        if (isExpanded && messageRef.current) {
-            setTimeout(() => {
-                messageRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-            }, 10);
+        if ( isExpanded && messageRef.current ) {
+            setTimeout( () => {
+                messageRef.current?.scrollIntoView( { behavior: "smooth", block: "start" } );
+            }, 10 );
         }
     };
     const handleCopyMessage = () => {
@@ -47,13 +47,13 @@ export const OutgoingMessage: React.FC<OutgoingMessageProps> = ({
     };
 
     const handleReply = () => {
-        setReplyInfo({
+        setReplyInfo( {
             message,
             sender: "You",
             messageId
-        });
+        } );
         // Set flag to focus the input after setting reply info
-        setShouldFocusInput(true);
+        setShouldFocusInput( true );
     };
 
     return (
@@ -61,9 +61,9 @@ export const OutgoingMessage: React.FC<OutgoingMessageProps> = ({
             <div className="flex justify-end">
                 <div
                     className="flex max-w-xs border rounded-md p-2 gap-2 shadow text-xs break-words whitespace-pre-line relative"
-                    onMouseEnter={() => setIsHovering(true)}
-                    onMouseLeave={() => setIsHovering(false)}
-                    onTouchStart={() => setIsHovering(true)}
+                    onMouseEnter={() => setIsHovering( true )}
+                    onMouseLeave={() => setIsHovering( false )}
+                    onTouchStart={() => setIsHovering( true )}
                 >
                     <div className="w-full">
                         <span className="text-rose-500">You</span>
@@ -81,10 +81,10 @@ export const OutgoingMessage: React.FC<OutgoingMessageProps> = ({
                         <p className="text-xs pt-1 break-words whitespace-pre-line w-full">
                             {isLongMessage && !isExpanded ? (
                                 <>
-                                    {renderTextWithLinks(message.substring(0, 150))}
+                                    {renderTextWithLinks( message.substring( 0, 150 ) )}
                                     <span>...</span>
                                 </>
-                            ) : renderTextWithLinks(message)}
+                            ) : renderTextWithLinks( message )}
                         </p>
 
                         {isLongMessage && (
@@ -108,7 +108,7 @@ export const OutgoingMessage: React.FC<OutgoingMessageProps> = ({
                 </div>
                 <div className="w-6 h-6 rounded-full flex items-center justify-center ml-1 bg-gray-200 relative">
                     {/* Light mode circle */}
-                    <span className="absolute inset-0 rounded-full border border-indigo-300 dark:border-transparent pointer-events-none"></span>
+                    <span className="absolute inset-0 rounded-full border border-rose-300 dark:border-transparent pointer-events-none"></span>
                     <User className="h-4 w-4 text-gray-400 dark:text-gray-600 relative z-10" />
                 </div>
             </div>

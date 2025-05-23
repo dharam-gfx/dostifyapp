@@ -7,25 +7,25 @@ import { useReply } from "@/contexts/ReplyContext";
 import ReplyBar from "./ReplyBar";
 
 let typingTimeout: NodeJS.Timeout | null = null;
-const ChatControls: React.FC<ChatControlsProps> = ({ input, setInput, onSend, sendTyping, isConnected = true }) => {
+const ChatControls: React.FC<ChatControlsProps> = ( { input, setInput, onSend, sendTyping, isConnected = true } ) => {
   const { replyInfo, clearReply, shouldFocusInput, setShouldFocusInput } = useReply();
-  const inputRef = useRef<HTMLTextAreaElement>(null);
+  const inputRef = useRef<HTMLTextAreaElement>( null );
 
   // Focus input when reply is clicked
-  useEffect(() => {
-    if (shouldFocusInput && inputRef.current) {
+  useEffect( () => {
+    if ( shouldFocusInput && inputRef.current ) {
       inputRef.current.focus();
       // Reset the flag after focusing
-      setShouldFocusInput(false);
+      setShouldFocusInput( false );
     }
-  }, [shouldFocusInput, setShouldFocusInput]); const handleSend = () => {
-    if (input.trim() === '') return;
+  }, [shouldFocusInput, setShouldFocusInput] ); const handleSend = () => {
+    if ( input.trim() === '' ) return;
     // Pass the actual input text to onSend and let onSend handle the reply info
-    onSend(input);
+    onSend( input );
     // Clear reply after sending
     clearReply();
     // Clear input field after sending
-    setInput('');
+    setInput( '' );
   };
 
   return (
@@ -33,7 +33,8 @@ const ChatControls: React.FC<ChatControlsProps> = ({ input, setInput, onSend, se
       <div className="relative order-2 px-2 sm:px-0 pb-5 md:order-1">
         <div className="rounded-3xl border-input bg-card/80 relative z-10 overflow-hidden border p-0 pb-2 shadow-xs backdrop-blur-xl">
           {/* Show reply bar if replying to a message */}
-          {replyInfo && <ReplyBar />}          <textarea
+          {replyInfo && <ReplyBar />}
+          <textarea
             ref={inputRef}
             className={cn(
               "border-input placeholder:text-muted-foreground placeholder:text-sm focus-visible:border-ring focus-visible:ring-ring/50",
@@ -45,34 +46,34 @@ const ChatControls: React.FC<ChatControlsProps> = ({ input, setInput, onSend, se
             style={{ height: 44 }}
             value={input}
             onChange={e => {
-              setInput(e.target.value);
+              setInput( e.target.value );
 
               // Send typing immediately
-              if (e.target.value.length > 0) {
-                sendTyping?.(true);
+              if ( e.target.value.length > 0 ) {
+                sendTyping?.( true );
               } else {
-                sendTyping?.(false);
+                sendTyping?.( false );
               }
 
               // Clear previous timeout
-              if (typingTimeout) {
-                clearTimeout(typingTimeout);
+              if ( typingTimeout ) {
+                clearTimeout( typingTimeout );
               }
 
               // Set timeout to stop typing after 2s of inactivity
-              typingTimeout = setTimeout(() => {
-                sendTyping?.(false);
+              typingTimeout = setTimeout( () => {
+                sendTyping?.( false );
                 typingTimeout = null;
-              }, 2000);
+              }, 2000 );
             }} onKeyDown={e => {
-              if (e.key === "Enter" && !e.shiftKey) {
+              if ( e.key === "Enter" && !e.shiftKey ) {
                 e.preventDefault();
                 handleSend();
-                sendTyping?.(false);
+                sendTyping?.( false );
 
                 // Clear typing timeout on send
-                if (typingTimeout) {
-                  clearTimeout(typingTimeout);
+                if ( typingTimeout ) {
+                  clearTimeout( typingTimeout );
                   typingTimeout = null;
                 }
               }

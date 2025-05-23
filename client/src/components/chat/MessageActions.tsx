@@ -44,12 +44,12 @@ export const MessageActions: React.FC<MessageActionsProps> = ({
             <button
                 onClick={onReply}
                 className={`${isHovering ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'} 
-          transition-opacity bg-gray-100 hover:bg-gray-200 rounded-full p-1 touch-manipulation
-          dark:bg-gray-800 dark:hover:bg-gray-700`}
+          transition-opacity bg-zinc-100 hover:bg-zinc-200 rounded-full p-1 touch-manipulation
+          dark:bg-zinc-800 dark:hover:bg-zinc-700`}
                 title="Reply"
                 aria-label="Reply to message"
             >
-                <Reply className="h-3 w-3 text-gray-500 dark:text-gray-400" />
+                <Reply className="h-3 w-3 text-zinc-500 dark:text-zinc-400" />
             </button>
 
             {/* AI Reply button - only shown if enabled */}
@@ -57,12 +57,12 @@ export const MessageActions: React.FC<MessageActionsProps> = ({
                 <button
                     onClick={onAiReply}
                     className={`${isHovering ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'} 
-            transition-opacity bg-gray-100 hover:bg-gray-200 rounded-full p-1 touch-manipulation
-            dark:bg-gray-800 dark:hover:bg-gray-700`}
+            transition-opacity bg-zinc-100 hover:bg-zinc-200 rounded-full p-1 touch-manipulation
+            dark:bg-zinc-800 dark:hover:bg-zinc-700`}
                     title="Get AI reply suggestion"
                     aria-label="Get AI reply suggestion"
                 >
-                    <Bot className="h-3 w-3 text-blue-500" />
+                    <Bot className="h-3 w-3 text-rose-500" />
                 </button>
             )}
 
@@ -70,15 +70,15 @@ export const MessageActions: React.FC<MessageActionsProps> = ({
             <button
                 onClick={handleCopyMessage}
                 className={`${isHovering ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'} 
-                transition-opacity bg-gray-100 hover:bg-gray-200 rounded-full p-1 touch-manipulation
-                dark:bg-gray-800 dark:hover:bg-gray-700`}
+                transition-opacity bg-zinc-100 hover:bg-zinc-200 rounded-full p-1 touch-manipulation
+                dark:bg-zinc-800 dark:hover:bg-zinc-700`}
                 title="Copy message"
                 aria-label="Copy message"
             >
                 {copied ? (
                     <Check className="h-3 w-3 text-green-500" />
                 ) : (
-                    <Copy className="h-3 w-3 text-gray-500 dark:text-gray-400" />
+                    <Copy className="h-3 w-3 text-zinc-500 dark:text-zinc-400" />
                 )}
             </button>
         </div>

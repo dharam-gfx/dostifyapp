@@ -8,12 +8,12 @@ const ReplyBar: React.FC = () => {
     if (!replyInfo) return null;
 
     return (
-        <div className="bg-gray-100 dark:bg-gray-800 p-2 rounded-t-lg border-b border-gray-200 dark:border-gray-700 relative">
-            <div className="flex flex-col max-w-full pr-8">
-                <span className="text-xs font-medium text-blue-500">
+        <div className="bg-zinc-100 dark:bg-zinc-800 p-2 rounded-t-lg border-b border-gray-200 dark:border-gray-700 relative">
+            <div className="flex flex-col max-w-full p-1 pr-8">
+                <span className="text-xs font-medium text-rose-500">
                     Replying to {replyInfo.sender || 'Message'}
                 </span>
-                <p className="text-xs text-gray-600 dark:text-gray-400 truncate pr-6">
+                <p className="text-xs pt-1 text-gray-600 dark:text-gray-400 truncate pr-6">
                     {replyInfo.message}
                 </p>
             </div>
