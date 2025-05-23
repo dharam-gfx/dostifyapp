@@ -5,10 +5,9 @@ import { useChatState } from "@/hooks/useChatState";
 import { ChatRoomHeaderProps } from "@/types/components";
 
 const ChatRoomHeader: React.FC<ChatRoomHeaderProps> = ( { roomId, isConnected, userCount } ) => {
-    const { deliveryWorking } = useChatState();
-    return (
-        <div className="flex w-full items-center justify-between py-4">
-            <div className="flex-1 flex justify-center items-center gap-4">
+    const { deliveryWorking } = useChatState(); return (
+        <div className="flex items-center justify-center h-full w-full max-w-md overflow-hidden">
+            <div className="flex items-center space-x-2 md:space-x-3 px-1 md:px-2">
                 <div className="flex items-center space-x-2">
 
                     {isConnected ? (
@@ -60,10 +59,8 @@ const ChatRoomHeader: React.FC<ChatRoomHeaderProps> = ( { roomId, isConnected, u
                                 <div className="flex items-center z-20 cursor-pointer">
                                     <div className="flex items-center text-xs text-muted-foreground">
                                         <Lock className="size-4" />
-                                    </div>
-
-                                    <span
-                                        className="inline-flex items-center justify-center px-2 py-0.5 font-medium w-fit whitespace-nowrap shrink-0 text-sm m-0 text-muted-foreground hover:text-primary" >
+                                    </div>                                    <span
+                                        className="inline-flex items-center justify-center px-1 md:px-2 py-0.5 font-medium w-fit whitespace-nowrap shrink-0 text-xs md:text-sm m-0 text-muted-foreground hover:text-primary truncate max-w-[60px] md:max-w-[100px]" >
                                         {roomId || "xxxxxx"}
                                     </span>
                                 </div>
@@ -74,13 +71,11 @@ const ChatRoomHeader: React.FC<ChatRoomHeaderProps> = ( { roomId, isConnected, u
                         </Tooltip>
                     </TooltipProvider>
 
-
-
                     <TooltipProvider>
                         <Tooltip>
                             <TooltipTrigger asChild>
                                 <div className="flex items-center text-xs text-muted-foreground z-20 cursor-pointer">
-                                    <Users className="size-4 mr-2" />
+                                    <Users className="size-4 mr-1" />
                                     <span className="text-sm">{userCount}</span>
                                 </div>
                             </TooltipTrigger>
@@ -88,8 +83,7 @@ const ChatRoomHeader: React.FC<ChatRoomHeaderProps> = ( { roomId, isConnected, u
                                 <span>Group members</span>
                             </TooltipContent>
                         </Tooltip>
-                    </TooltipProvider>
-                </div>
+                    </TooltipProvider></div>
             </div>
         </div>
     );

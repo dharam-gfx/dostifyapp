@@ -126,37 +126,46 @@ button {
   cursor: pointer;
 }
 
-/* Custom Scrollbar Styles */
+/* Custom Scrollbar Styles & Smooth Scrolling */
+/* Hide scrollbar while maintaining functionality */
+/* For Webkit browsers (Chrome, Safari, newer Edge) */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 0;
+  height: 0;
+  display: none;
 }
 
-::-webkit-scrollbar-track {
-  border-radius: 50px;
-  background: theme('colors.zinc.100');
-  /* Light mode track */
+/* For Firefox */
+* {
+  scrollbar-width: none;
 }
 
-::-webkit-scrollbar-thumb {
-  background-color: theme('colors.zinc.400');
-  /* Light mode thumb */
-  border-radius: 50px;
-  border: 2px solid transparent;
-  background-clip: content-box;
+/* For IE and Edge */
+* {
+  -ms-overflow-style: none;
 }
 
-.dark ::-webkit-scrollbar-track {
-  background: theme('colors.zinc.800');
-  /* Dark mode track */
+/* Smooth Scrolling for everything */
+html {
+  scroll-behavior: smooth;
 }
 
-.dark ::-webkit-scrollbar-thumb {
-  background-color: theme('colors.zinc.600');
-  /* Dark mode thumb */
+/* Enhanced smooth scrolling for elements with overflow */
+.smooth-scroll {
+  overflow: auto;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  /* For iOS momentum scrolling */
 }
 
-::-webkit-scrollbar-thumb:hover {
-  background-color: theme('colors.zinc.500');
-  /* Thumb hover color */
+/* Optimize animations for scrolling */
+@media (prefers-reduced-motion: no-preference) {
+  .scroll-fade {
+    transition: opacity 0.3s ease, transform 0.3s ease;
+  }
+
+  .chat-scroll {
+    scroll-padding: 1rem;
+    scrollbar-gutter: stable;
+  }
 }
