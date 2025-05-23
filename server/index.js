@@ -6,6 +6,7 @@ import http from 'http';
 import { Server } from "socket.io";
 import { nanoid } from "nanoid";
 import { configureCors, socketCorsConfig } from './cors-config.js';
+import { rateLimiter } from './middleware/rateLimiter.js';
 
 const app = express();
 const server = http.createServer(app);
@@ -16,11 +17,18 @@ const io = new Server(server, {
     maxHttpBufferSize: 5e6, // 5MB max message size
     pingTimeout: 30000,     // Faster disconnection detection
     connectTimeout: 10000,  // Faster connection timeout
+    // Auto-reconnection settings
+    reconnection: true,
+    reconnectionAttempts: 5,
+    reconnectionDelay: 1000,
+    reconnectionDelayMax: 5000,
+    randomizationFactor: 0.5,
 });
 
 // Configure CORS for the Express app
 configureCors(app);
 app.use(express.json({ limit: '5mb' })); // Limit JSON payload size
+app.use(rateLimiter); // Apply rate limiting
 
 const PORT = process.env.PORT || 5000;
 
@@ -131,8 +139,7 @@ io.on('connection', (socket) => {
                 delete chatRooms[roomId];
                 delete typingUsers[roomId];
                 io.to(roomId).emit('chat-destroyed');
-            }
-        });
+            }        });
     });
 });
 
