@@ -14,10 +14,67 @@ function Home() {
   const [chatCode, setChatCode] = useState( "" );
   const router = useRouter();
   // Importing the alert sound hook
-  const { playAlert } = useAlertSound();
-
-  const handleInputChange = ( e: React.ChangeEvent<HTMLInputElement> ) => {
-    setChatCode( e.target.value );
+  const { playAlert } = useAlertSound();  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // Store original input for display purposes
+    const inputValue = e.target.value;
+    const value = inputValue.trim();
+    
+    // If input is empty, clear the chat code
+    if (!value) {
+      setChatCode("");
+      return;
+    }
+    
+    // Check for direct chat code format (4-8 alphanumeric chars)
+    if (/^[a-zA-Z0-9]{4,8}$/.test(value)) {
+      setChatCode(value.toLowerCase());
+      return;
+    }
+    
+    // Try parsing as URL
+    try {
+      // Check if it might be a URL (contains '/' or '.')
+      if (value.includes('/') || value.includes('.')) {
+        // Add protocol if missing to make URL parsing work
+        const urlString = value.startsWith('http') ? value : `https://${value}`;
+        const url = new URL(urlString);
+        
+        // Check if path matches the expected pattern /chat/{code}
+        const pathSegments = url.pathname.split('/').filter(Boolean);
+        if (pathSegments[0] === 'chat' && pathSegments[1]) {
+          setChatCode(pathSegments[1].toLowerCase());
+          return;
+        }
+        
+        // Also check for common URL shortening patterns like example.com/abcdef
+        if (pathSegments.length === 1 && pathSegments[0].length >= 4 && pathSegments[0].length <= 8) {
+          setChatCode(pathSegments[0].toLowerCase());
+          return;
+        }
+        
+        // Check hash-based routes (#/chat/code)
+        if (url.hash) {
+          const hashSegments = url.hash.substring(1).split('/').filter(Boolean);
+          if (hashSegments[0] === 'chat' && hashSegments[1]) {
+            setChatCode(hashSegments[1].toLowerCase());
+            return;
+          }
+        }
+        
+        // Check query parameters like ?room=code or ?chat=code
+        const roomCode = url.searchParams.get('room') || url.searchParams.get('chat');
+        if (roomCode && roomCode.length >= 4 && roomCode.length <= 8) {
+          setChatCode(roomCode.toLowerCase());
+          return;
+        }
+      }
+    } catch {
+      // Not a valid URL, continue to use input as is
+    }
+    
+    // If not a valid chat URL or extraction failed, use input as is
+    // But make sure it's limited to a reasonable length to avoid potential issues
+    setChatCode(value.slice(0, 20).toLowerCase());
   };
   const handleJoinChat = async () => {
     if ( chatCode.trim() ) {

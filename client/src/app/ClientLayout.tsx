@@ -7,6 +7,7 @@ import Header from "@/components/header/Header";
 import Footer from "@/components/footer/Footer";
 import { Toaster } from "@/components/ui/sonner";
 import { SoundProvider } from "@/providers/SoundProvider";
+import { ErrorBoundary } from "@/components/ui/ErrorBoundary";
 
 export default function ClientLayout( { children }: { children: React.ReactNode } ) {
   return (
@@ -15,13 +16,14 @@ export default function ClientLayout( { children }: { children: React.ReactNode 
         attribute="class"
         defaultTheme="system"
         enableSystem
-        disableTransitionOnChange
-      >
+        disableTransitionOnChange      >
         <SoundProvider>
-          <Header />
-          <main className="flex-grow">{children}</main>
-          <Footer />
-          <Toaster />
+          <ErrorBoundary>
+            <Header />
+            <main className="flex-grow">{children}</main>
+            <Footer />
+            <Toaster />
+          </ErrorBoundary>
         </SoundProvider>
       </ThemeProvider>
     </Provider>
