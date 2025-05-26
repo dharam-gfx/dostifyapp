@@ -2,6 +2,7 @@
 import React, { useState, useRef, useEffect, useMemo } from "react";
 import { useSelector } from "react-redux";
 import { RootState } from "@/store/strore";
+import { useRouter, useParams } from "next/navigation";
 
 import ChatFeed from "@/components/chat/ChatFeed";
 import ChatRoomHeader from "@/components/chat/ChatRoomHeader";
@@ -10,14 +11,18 @@ import TypingIndicator from "@/components/ui/TypingIndicator";
 import { ReplyProvider, useReply } from "@/contexts/ReplyContext";
 import { useSocket } from "@/hooks/useSocket";
 import { useSocketNotificationSound } from "@/hooks/useSocketNotificationSound";
-import { useParams } from "next/navigation";
+import { checkRoomExists } from "@/services/roomService";
 
 // Internal component that uses the ReplyContext
 const ChatRoom = () => {
-  // Get userName from Redux store, fallback to "User" if not available
   const userName = useSelector( ( state: RootState ) => state.user.userName ) || "User";
+  const router = useRouter();
   const params = useParams();
   const { replyInfo, clearReply } = useReply();
+
+  // State for loading and room existence
+  const [isLoading, setIsLoading] = useState( true );
+  const [roomExists, setRoomExists] = useState( false );
 
   // Memoize the room ID from URL
   const roomIdFromUrl = useMemo( () => params?.chatCode as string || "", [params] );
@@ -31,9 +36,24 @@ const ChatRoom = () => {
   // Use the socket notification sound hook
   useSocketNotificationSound( messages, userId );
 
+  const checkRoomExistsHandler = async ( roomIdFromUrl: string ) => {
+    if ( roomIdFromUrl && roomIdFromUrl.trim() !== "" ) {
+      try {
+        setIsLoading( true );
+        const data = await checkRoomExists( roomIdFromUrl );
+        setRoomExists( data.exists );
+      } catch ( error ) {
+        console.error( "Error checking room:", error );
+        setRoomExists( false );
+      } finally {
+        setIsLoading( false );
+      }
+    }
+  };
+
   useEffect( () => {
     setRoomId( roomIdFromUrl );
-    console.log( "Room ID from URL:", roomIdFromUrl );
+    checkRoomExistsHandler( roomIdFromUrl );
   }, [roomIdFromUrl] );
 
   // Memoize the typing indicator check
@@ -54,6 +74,40 @@ const ChatRoom = () => {
     clearReply(); // Clear the reply after sending
     setInput( "" ); // Clear the input field after sending
   };
+
+  // Show loading screen
+  if ( isLoading ) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-zinc-50 dark:bg-zinc-950">
+        <div className="text-center space-y-4">
+          <div className="w-16 h-16 border-4 border-zinc-300 border-t-zinc-900 rounded-full animate-spin mx-auto"></div>
+          <p className="text-zinc-600 dark:text-zinc-400">Checking chat room...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show room not found screen
+  if ( !roomExists ) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-zinc-50 dark:bg-zinc-950">
+        <div className="text-center space-y-4 p-6 max-w-md mx-auto">
+          <h2 className="text-2xl font-semibold text-zinc-900 dark:text-zinc-100">
+            Chat Room Not Found
+          </h2>
+          <p className="text-zinc-600 dark:text-zinc-400">
+            This chat room does not exist or has expired
+          </p>
+          <button
+            onClick={() => router.push( "/" )}
+            className="inline-flex items-center justify-center rounded-md text-sm font-medium bg-zinc-900 text-white hover:bg-zinc-800 h-10 px-4 py-2 w-full"
+          >
+            Go to Home
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col h-screen w-full items-center">
