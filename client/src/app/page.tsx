@@ -5,82 +5,82 @@ import { ChevronRight, ShieldCheck } from "lucide-react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
-import { nanoid } from "@reduxjs/toolkit";
 import { toast } from "sonner";
 import { useAlertSound } from '@/hooks/useAlertSound';
 import { UserNameModal } from "@/components/ui/UserNameModal";
+import { checkRoomExists, createNewChatRoomCode, createRoom } from "@/services/roomService";
 
 function Home() {
   const [chatCode, setChatCode] = useState( "" );
   const router = useRouter();
   // Importing the alert sound hook
-  const { playAlert } = useAlertSound();  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const { playAlert } = useAlertSound();
+  const handleInputChange = ( e: React.ChangeEvent<HTMLInputElement> ) => {
     // Store original input for display purposes
     const inputValue = e.target.value;
     const value = inputValue.trim();
-    
+
     // If input is empty, clear the chat code
-    if (!value) {
-      setChatCode("");
+    if ( !value ) {
+      setChatCode( "" );
       return;
     }
-    
+
     // Check for direct chat code format (4-8 alphanumeric chars)
-    if (/^[a-zA-Z0-9]{4,8}$/.test(value)) {
-      setChatCode(value.toLowerCase());
+    if ( /^[a-zA-Z0-9]{4,8}$/.test( value ) ) {
+      setChatCode( value.toLowerCase() );
       return;
     }
-    
+
     // Try parsing as URL
     try {
       // Check if it might be a URL (contains '/' or '.')
-      if (value.includes('/') || value.includes('.')) {
+      if ( value.includes( '/' ) || value.includes( '.' ) ) {
         // Add protocol if missing to make URL parsing work
-        const urlString = value.startsWith('http') ? value : `https://${value}`;
-        const url = new URL(urlString);
-        
+        const urlString = value.startsWith( 'http' ) ? value : `https://${value}`;
+        const url = new URL( urlString );
+
         // Check if path matches the expected pattern /chat/{code}
-        const pathSegments = url.pathname.split('/').filter(Boolean);
-        if (pathSegments[0] === 'chat' && pathSegments[1]) {
-          setChatCode(pathSegments[1].toLowerCase());
+        const pathSegments = url.pathname.split( '/' ).filter( Boolean );
+        if ( pathSegments[0] === 'chat' && pathSegments[1] ) {
+          setChatCode( pathSegments[1].toLowerCase() );
           return;
         }
-        
+
         // Also check for common URL shortening patterns like example.com/abcdef
-        if (pathSegments.length === 1 && pathSegments[0].length >= 4 && pathSegments[0].length <= 8) {
-          setChatCode(pathSegments[0].toLowerCase());
+        if ( pathSegments.length === 1 && pathSegments[0].length >= 4 && pathSegments[0].length <= 8 ) {
+          setChatCode( pathSegments[0].toLowerCase() );
           return;
         }
-        
+
         // Check hash-based routes (#/chat/code)
-        if (url.hash) {
-          const hashSegments = url.hash.substring(1).split('/').filter(Boolean);
-          if (hashSegments[0] === 'chat' && hashSegments[1]) {
-            setChatCode(hashSegments[1].toLowerCase());
+        if ( url.hash ) {
+          const hashSegments = url.hash.substring( 1 ).split( '/' ).filter( Boolean );
+          if ( hashSegments[0] === 'chat' && hashSegments[1] ) {
+            setChatCode( hashSegments[1].toLowerCase() );
             return;
           }
         }
-        
+
         // Check query parameters like ?room=code or ?chat=code
-        const roomCode = url.searchParams.get('room') || url.searchParams.get('chat');
-        if (roomCode && roomCode.length >= 4 && roomCode.length <= 8) {
-          setChatCode(roomCode.toLowerCase());
+        const roomCode = url.searchParams.get( 'room' ) || url.searchParams.get( 'chat' );
+        if ( roomCode && roomCode.length >= 4 && roomCode.length <= 8 ) {
+          setChatCode( roomCode.toLowerCase() );
           return;
         }
       }
     } catch {
       // Not a valid URL, continue to use input as is
     }
-    
+
     // If not a valid chat URL or extraction failed, use input as is
     // But make sure it's limited to a reasonable length to avoid potential issues
-    setChatCode(value.slice(0, 20).toLowerCase());
+    setChatCode( value.slice( 0, 20 ).toLowerCase() );
   };
   const handleJoinChat = async () => {
     if ( chatCode.trim() ) {
       try {
-        const response = await fetch( `/api/check-room/${chatCode}` );
-        const data = await response.json();
+        const data = await checkRoomExists( chatCode );
 
         if ( data.exists ) {
           router.push( `/chat/${chatCode}` );
@@ -103,10 +103,30 @@ function Home() {
       }
     }
   };
-  const handleStartNewChat = () => {
-    const newChatCode = nanoid( 6 )?.toLowerCase();
-    console.log( "Starting new chat", newChatCode );
-    router.push( `/chat/${newChatCode}` );
+  
+  const handleStartNewChat = async () => {
+    try {
+      const newChatCode = createNewChatRoomCode();
+      console.log( "Starting new chat", newChatCode );
+
+      // Create the room via API before navigating
+      const result = await createRoom( newChatCode );
+
+      if ( result.success ) {
+        router.push( `/chat/${newChatCode}` );
+      } else {
+        playAlert();
+        toast( `Error creating chat room.`, {
+          description: `Please try again.`,
+        } );
+      }
+    } catch ( error ) {
+      console.error( "Error creating room:", error );
+      playAlert();
+      toast( `Error creating chat room.`, {
+        description: `Please try again later.`,
+      } );
+    }
   }
   return (
     <div className="min-h-screen flex items-center justify-center px-4">
