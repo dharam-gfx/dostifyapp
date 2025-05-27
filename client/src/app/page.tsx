@@ -12,6 +12,7 @@ import { checkRoomExists, createNewChatRoomCode, createRoom } from "@/services/r
 
 function Home() {
   const [chatCode, setChatCode] = useState( "" );
+  const [isCreatingChat, setIsCreatingChat] = useState( false );
   const router = useRouter();
   // Importing the alert sound hook
   const { playAlert } = useAlertSound();
@@ -103,9 +104,10 @@ function Home() {
       }
     }
   };
-  
+
   const handleStartNewChat = async () => {
     try {
+      setIsCreatingChat( true );
       const newChatCode = createNewChatRoomCode();
       console.log( "Starting new chat", newChatCode );
 
@@ -126,6 +128,10 @@ function Home() {
       toast( `Error creating chat room.`, {
         description: `Please try again later.`,
       } );
+    } finally {
+      setTimeout( () => {
+        setIsCreatingChat( false );
+      }, 1000 );
     }
   }
   return (
@@ -180,10 +186,14 @@ function Home() {
           </div>
 
           {/* Start new chat button */}
-          <Button title="Click here to start new private chat" className="w-full h-11 rounded-full bg-zinc-950 text-white dark:bg-white dark:text-zinc-950 hover:bg-zinc-900 dark:hover:bg-zinc-100"
+          <Button
+            title="Click here to start new private chat"
+            className="w-full h-11 rounded-full bg-zinc-950 text-white dark:bg-white dark:text-zinc-950 hover:bg-zinc-900 dark:hover:bg-zinc-100"
             onClick={handleStartNewChat}
+            disabled={isCreatingChat}
           >
-            <ShieldCheck size={18} /> Start new private chat
+            <ShieldCheck size={18} className="mr-2" />
+            {isCreatingChat ? "Connecting..." : "Start new private chat"}
           </Button>
         </div>
       </div>
