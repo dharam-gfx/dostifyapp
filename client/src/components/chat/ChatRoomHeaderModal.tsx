@@ -11,6 +11,7 @@ const tabs: TabItem[] = [
         name: "Share Link",
         value: "Share Link",
         icon: Link2,
+        className: "h-[400px] overflow-y-auto",
         content: ShareChatLink,
     },
     {

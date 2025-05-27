@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import Image from 'next/image';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Copy, Share2, Check } from "lucide-react";
@@ -55,7 +56,8 @@ const ShareChatLink: React.FC<ShareChatLinkProps> = ( { roomId } ) => {
     };
 
     return (
-        <div className="w-full space-y-4 p-4">
+        <div className="w-full space-y-6 p-4">
+            {/* Share Link Section */}
             <div className="flex flex-col space-y-2">
                 <label htmlFor="share-link"
                     className="text-sm font-medium text-zinc-500 dark:text-zinc-400">
@@ -91,9 +93,37 @@ const ShareChatLink: React.FC<ShareChatLinkProps> = ( { roomId } ) => {
                     </Button>
                 </div>
             </div>
-            <p className="text-xs text-zinc-500 dark:text-zinc-400">
-                Anyone with this link can join the chat room
-            </p>
+
+            {/* How to Join Guide */}
+            <div className="flex flex-col space-y-4">
+                <h3 className="text-sm font-semibold text-zinc-800 dark:text-zinc-200">
+                    How to Join This Chat
+                </h3>
+                <div className="relative w-full h-40 rounded-lg overflow-hidden bg-zinc-100 dark:bg-zinc-800">
+                    <Image
+                        src="/homeUI-image.png"
+                        alt="How to join chat guidance"
+                        fill
+                        className="object-contain"
+                        priority
+                    />
+                </div>
+                <div className="space-y-3">
+                    <div className="space-y-2">
+                        <h4 className="text-xs font-medium text-zinc-700 dark:text-zinc-300">
+                            Steps to Join:
+                        </h4>
+                        <ol className="text-xs text-zinc-500 dark:text-zinc-400 space-y-1 list-decimal pl-4">
+                            <li>Copy the link above using the copy button</li>
+                            <li>Paste the link in the input field on the home page</li>
+                            <li>Click the arrow button or press Enter to join the chat</li>
+                        </ol>
+                    </div>
+                    <p className="text-xs text-zinc-500 dark:text-zinc-400 pt-2 border-t border-zinc-200 dark:border-zinc-700">
+                        Note: Anyone with this link can join the chat room. Share responsibly.
+                    </p>
+                </div>
+            </div>
         </div>
     );
 };
