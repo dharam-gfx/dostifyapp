@@ -9,6 +9,8 @@ import { toast } from "sonner";
 import { useAlertSound } from '@/hooks/useAlertSound';
 import { UserNameModal } from "@/components/ui/UserNameModal";
 import { checkRoomExists, createNewChatRoomCode, createRoom } from "@/services/roomService";
+import { Meteors } from "@/components/ui/meteors";
+import MeteorsBackground from "@/components/ui/MeteorsBackground";
 
 function Home() {
   const [chatCode, setChatCode] = useState( "" );
@@ -135,69 +137,72 @@ function Home() {
     }
   }
   return (
-    <div className="min-h-screen flex items-center justify-center px-4">
-      <UserNameModal />
-      <div className="flex flex-col items-center space-y-4 w-full max-w-md">
-        {/* Title and subtitle */}
-        <div className="text-center space-y-2">
-          <h1 className="text-3xl font-bold tracking-tight text-zinc-950 dark:text-white">
-            Dostify<span className="text-zinc-600 dark:text-zinc-400">App</span>
-          </h1>
-          <p className="text-sm text-zinc-600 dark:text-zinc-400">
-            one-time end-to-end encrypted anonymous chats
-          </p>
-        </div>
-
-        <div className="w-full space-y-6">
-          {/* Label */}
-          <div className="text-center">
-            <p className="text-xs text-zinc-500 dark:text-zinc-500">Join private chat</p>
+    <MeteorsBackground>
+      <div className="min-h-screen flex items-center justify-center px-4 relative">
+        <UserNameModal />
+        <div className="flex flex-col items-center space-y-4 w-full max-w-md">
+          {/* Title and subtitle */}
+          <div className="text-center space-y-2">
+            <h1 className="text-3xl font-bold tracking-tight text-zinc-950 dark:text-white">
+              Dostify<span className="text-rose-500 dark:text-rose-500">App</span>
+            </h1>
+            <p className="text-sm text-zinc-600 dark:text-zinc-400">
+              one-time end-to-end encrypted anonymous chats
+            </p>
           </div>
 
-          {/* Input + inside button */}
-          <div className="relative w-full">
-            <Input
-              value={chatCode}
-              onChange={handleInputChange}
-              onKeyDown={( e ) => {
-                if ( e.key === "Enter" ) {
-                  handleJoinChat();
-                }
-              }}
-              placeholder="Enter chat code or link to join..."
-              className="h-11 pl-4 pr-12 rounded-full bg-zinc-100 dark:bg-zinc-800 border-zinc-200 dark:border-zinc-700 focus-visible:ring-1 focus-visible:ring-zinc-600"
-            />
-            <div className="absolute right-1 top-1/2 -translate-y-1/2">
-              <Button
-                title="Click join chat"
-                size="icon"
-                className="size-9 rounded-full bg-zinc-950 text-white dark:bg-zinc-100 dark:text-zinc-950 hover:bg-zinc-900 dark:hover:bg-zinc-200"
-                onClick={handleJoinChat}
-                disabled={!chatCode.trim()}
-              >
-                <ChevronRight className="h-4 w-4" />
-              </Button>
+          <div className="w-full space-y-6">
+            {/* Label */}
+            <div className="text-center">
+              <p className="text-xs text-zinc-500 dark:text-zinc-500">Join private chat</p>
             </div>
-          </div>
 
-          {/* Or separator */}
-          <div className="text-center">
-            <p className="text-xs text-zinc-500 dark:text-zinc-500">or</p>
-          </div>
+            {/* Input + inside button */}
+            <div className="relative w-full">
+              <Input
+                value={chatCode}
+                onChange={handleInputChange}
+                onKeyDown={( e ) => {
+                  if ( e.key === "Enter" ) {
+                    handleJoinChat();
+                  }
+                }}
+                placeholder="Enter chat code or link to join..."
+                className="h-11 pl-4 pr-12 rounded-full bg-zinc-100 dark:bg-zinc-800 border-zinc-200 dark:border-zinc-700 focus-visible:ring-1 focus-visible:ring-zinc-600"
+              />
+              <div className="absolute right-1 top-1/2 -translate-y-1/2">
+                <Button
+                  title="Click join chat"
+                  size="icon"
+                  className="size-9 rounded-full bg-zinc-950 text-white dark:bg-zinc-100 dark:text-zinc-950 hover:bg-zinc-900 dark:hover:bg-zinc-200"
+                  onClick={handleJoinChat}
+                  disabled={!chatCode.trim()}
+                >
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
 
-          {/* Start new chat button */}
-          <Button
-            title="Click here to start new private chat"
-            className="w-full h-11 rounded-full bg-zinc-950 text-white dark:bg-white dark:text-zinc-950 hover:bg-zinc-900 dark:hover:bg-zinc-100"
-            onClick={handleStartNewChat}
-            disabled={isCreatingChat}
-          >
-            <ShieldCheck size={18} className="mr-2" />
-            {isCreatingChat ? "Connecting..." : "Start new private chat"}
-          </Button>
+            {/* Or separator */}
+            <div className="text-center">
+              <p className="text-xs text-zinc-500 dark:text-zinc-500">or</p>
+            </div>
+
+            {/* Start new chat button */}
+            <Button
+              title="Click here to start new private chat"
+              className="w-full h-11 rounded-full bg-zinc-950 text-white dark:bg-white dark:text-zinc-950 hover:bg-zinc-900 dark:hover:bg-zinc-100"
+              onClick={handleStartNewChat}
+              disabled={isCreatingChat}
+            >
+              <ShieldCheck size={18} className="mr-2" />
+              {isCreatingChat ? "Connecting..." : "Start new private chat"}
+            </Button>
+          </div>
         </div>
+        <Meteors number={100} />
       </div>
-    </div>
+    </MeteorsBackground>
   );
 }
 
