@@ -3,6 +3,13 @@ import { IncomingMessage } from './IncomingMessage';
 import { OutgoingMessage } from './OutgoingMessage';
 import { ReplyPreview } from './ReplyPreview';
 import { MessageActions } from './MessageActions';
+import ChatControls from './ChatControls';
+import ChatInput from './ChatInput';
+import ActionButtons from './ActionButtons';
+import MediaButtons from './MediaButtons';
+import FileUploadButton from './FileUploadButton';
+import EmojiPicker from './EmojiPicker';
+import EmojiPickerContainer from './EmojiPickerContainer';
 
 // Export all message-related components for easy importing
 export {
@@ -10,5 +17,12 @@ export {
     IncomingMessage,
     OutgoingMessage,
     ReplyPreview,
-    MessageActions
+    MessageActions,
+    ChatControls,
+    ChatInput,
+    ActionButtons,
+    MediaButtons,
+    FileUploadButton,
+    EmojiPicker,
+    EmojiPickerContainer
 };

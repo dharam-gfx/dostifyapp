@@ -1,15 +1,45 @@
-import React, { useEffect, useRef } from "react";
-import { Paperclip, Smile, Image as LunarImage, Video, Mic, Send } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+// filepath: c:\Users\kdharmendra\Desktop\dostifyapp nextjs\dostifyapp\client\src\components\chat\ChatControls.tsx
+import React, { useEffect, useRef, useState } from "react";
 import { ChatControlsProps } from "@/types/components";
 import { useReply } from "@/contexts/ReplyContext";
 import ReplyBar from "./ReplyBar";
 
-let typingTimeout: NodeJS.Timeout | null = null;
-const ChatControls: React.FC<ChatControlsProps> = ( { input, setInput, onSend, sendTyping, isConnected = true } ) => {
+// Import refactored components
+import { ChatInput, MediaButtons, ActionButtons, EmojiPickerContainer } from "./index";
+
+const ChatControls: React.FC<ChatControlsProps> = ( {
+  input,
+  setInput,
+  onSend,
+  sendTyping,
+  isConnected = true
+} ) => {
   const { replyInfo, clearReply, shouldFocusInput, setShouldFocusInput } = useReply();
   const inputRef = useRef<HTMLTextAreaElement>( null );
+  const pickerRef = useRef<HTMLDivElement>( null );
+  const emojiButtonRef = useRef<HTMLButtonElement>( null );
+  const [showEmojiPicker, setShowEmojiPicker] = useState( false );
+  const [currentSkinTone, setCurrentSkinTone] = useState( 1 );
+
+  // Close emoji picker when clicking outside
+  useEffect( () => {
+    const handleClickOutside = ( event: MouseEvent ) => {
+      if (
+        showEmojiPicker &&
+        pickerRef.current &&
+        !pickerRef.current.contains( event.target as Node ) &&
+        emojiButtonRef.current &&
+        !emojiButtonRef.current.contains( event.target as Node )
+      ) {
+        setShowEmojiPicker( false );
+      }
+    };
+
+    document.addEventListener( "mousedown", handleClickOutside );
+    return () => {
+      document.removeEventListener( "mousedown", handleClickOutside );
+    };
+  }, [showEmojiPicker] );
 
   // Focus input when reply is clicked
   useEffect( () => {
@@ -18,7 +48,9 @@ const ChatControls: React.FC<ChatControlsProps> = ( { input, setInput, onSend, s
       // Reset the flag after focusing
       setShouldFocusInput( false );
     }
-  }, [shouldFocusInput, setShouldFocusInput] ); const handleSend = () => {
+  }, [shouldFocusInput, setShouldFocusInput] );
+
+  const handleSend = () => {
     if ( input.trim() === '' ) return;
     // Pass the actual input text to onSend and let onSend handle the reply info
     onSend( input );
@@ -28,132 +60,64 @@ const ChatControls: React.FC<ChatControlsProps> = ( { input, setInput, onSend, s
     setInput( '' );
   };
 
+  // Handle emoji selection
+  const handleEmojiSelect = ( emoji: { native: string } ) => {
+    setInput( input + emoji.native );
+    // Keep the picker open for multiple selections
+    if ( inputRef.current ) {
+      inputRef.current.focus();
+    }
+  };
+
+  // Handle skin tone change
+  const handleSkinToneChange = ( skin: number ) => {
+    setCurrentSkinTone( skin );
+  };
+
+  // Toggle emoji picker visibility
+  const toggleEmojiPicker = () => {
+    setShowEmojiPicker( !showEmojiPicker );
+  };
+
   return (
     <div className="fixed inset-x-0 bottom-0 z-40 mx-auto w-full max-w-2xl">
       <div className="relative order-2 px-2 sm:px-0 pb-5 md:order-1">
-        <div className="rounded-3xl border-input bg-card/80 relative z-10 overflow-hidden border p-0 pb-2 shadow-xs backdrop-blur-xl">
+        <div className="rounded-3xl border-input bg-card/80 relative z-10 border p-0 pb-2 shadow-xs backdrop-blur-xl">
           {/* Show reply bar if replying to a message */}
           {replyInfo && <ReplyBar />}
-          <textarea
-            ref={inputRef}
-            className={cn(
-              "border-input placeholder:text-muted-foreground placeholder:text-sm focus-visible:border-ring focus-visible:ring-ring/50",
-              "flex rounded-md border px-3 py-2 text-primary w-full resize-none border-none bg-transparent shadow-none outline-none",
-              "focus-visible:ring-0 focus-visible:ring-offset-0 mt-2 ml-2 min-h-[44px] max-h-[150px] text-sm leading-[1.3]"
-            )}
-            rows={1}
-            placeholder="Type your reply..."
-            style={{ height: 44 }}
-            value={input}
-            onChange={e => {
-              setInput( e.target.value );
 
-              // Send typing immediately
-              if ( e.target.value.length > 0 ) {
-                sendTyping?.( true );
-              } else {
-                sendTyping?.( false );
-              }
-
-              // Clear previous timeout
-              if ( typingTimeout ) {
-                clearTimeout( typingTimeout );
-              }
-
-              // Set timeout to stop typing after 2s of inactivity
-              typingTimeout = setTimeout( () => {
-                sendTyping?.( false );
-                typingTimeout = null;
-              }, 2000 );
-            }} onKeyDown={e => {
-              if ( e.key === "Enter" && !e.shiftKey ) {
-                e.preventDefault();
-                handleSend();
-                sendTyping?.( false );
-
-                // Clear typing timeout on send
-                if ( typingTimeout ) {
-                  clearTimeout( typingTimeout );
-                  typingTimeout = null;
-                }
-              }
-            }}
+          {/* Chat Input */}
+          <ChatInput
+            inputRef={inputRef}
+            input={input}
+            setInput={setInput}
+            sendTyping={sendTyping}
+            handleSend={handleSend}
           />
+
           <div className="flex items-center gap-2 mt-2 w-full justify-between px-2">
-            <div className="flex gap-2">
-              {/* Attach Files */}
-              <label>
-                <input
-                  className="hidden"
-                  multiple
-                  accept=".jpg,.jpeg,.png,.gif,.pdf,.txt,.md,.json,.csv,.xls,.xlsx"
-                  type="file"
-                  aria-hidden="true"
-                />
-                <Button
-                  type="button"
-                  size="icon"
-                  variant="ghost"
-                  className="size-8 rounded-full border bg-transparent hover:bg-accent hover:text-accent-foreground"
-                  aria-label="Add files"
-                >
-                  <Paperclip className="size-4" />
-                </Button>
-              </label>
-              {/* Emoji */}
-              <Button
-                type="button"
-                size="icon"
-                variant="ghost"
-                className="size-8 rounded-full border bg-transparent hover:bg-accent hover:text-accent-foreground"
-                aria-label="Add Emoji"
-              >
-                <Smile className="size-4" />
-              </Button>
-              {/* GIF/Image */}
-              <Button
-                type="button"
-                size="icon"
-                variant="ghost"
-                className="size-8 rounded-full border bg-transparent hover:bg-accent hover:text-accent-foreground"
-                aria-label="Add GIF"
-              >
-                <LunarImage className="size-4" />
-              </Button>
-            </div>
-            <div className="flex gap-2">
-              {/* Video */}
-              <Button
-                type="button"
-                size="icon"
-                variant="ghost"
-                className="size-8 rounded-full border bg-transparent hover:bg-accent hover:text-accent-foreground"
-                aria-label="Start video chat"
-              >
-                <Video className="size-4" />
-              </Button>
-              {/* Mic */}
-              <Button
-                type="button"
-                size="icon"
-                variant="ghost"
-                className="size-8 rounded-full border bg-transparent hover:bg-accent hover:text-accent-foreground"
-                aria-label="Start recording"
-              >
-                <Mic className="size-4" />
-              </Button>              {/* Send */}
-              <Button
-                type="button"
-                size="icon"
-                className="size-8 rounded-full bg-primary text-primary-foreground hover:bg-primary/90"
-                aria-label="Send message"
-                onClick={handleSend}
-                disabled={!input.trim() || !isConnected}
-              >
-                <Send className="size-4" />
-              </Button>
-            </div>
+            {/* Media Buttons (File Upload, Emoji, Image) */}
+            <MediaButtons
+              emojiButtonRef={emojiButtonRef}
+              toggleEmojiPicker={toggleEmojiPicker}
+            />
+
+            {/* Action Buttons (Video, Mic, Send) */}
+            <ActionButtons
+              handleSend={handleSend}
+              isInputEmpty={!input.trim()}
+              isConnected={isConnected}
+            />
           </div>
+
+          {/* Emoji Picker */}
+          <EmojiPickerContainer
+            pickerRef={pickerRef}
+            showEmojiPicker={showEmojiPicker}
+            onEmojiSelect={handleEmojiSelect}
+            currentSkinTone={currentSkinTone}
+            onSkinToneChange={handleSkinToneChange}
+          />
         </div>
       </div>
     </div>
