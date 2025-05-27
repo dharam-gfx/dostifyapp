@@ -1,7 +1,5 @@
-import React, { useEffect } from 'react';
-import data from "@emoji-mart/data";
-import Picker from "@emoji-mart/react";
-import { init } from "emoji-mart";
+import React from 'react';
+import EmojiPickerReact, { Theme, SkinTones, EmojiStyle } from 'emoji-picker-react';
 
 interface EmojiPickerProps {
     onEmojiSelect: ( emoji: { native: string } ) => void;
@@ -9,30 +7,45 @@ interface EmojiPickerProps {
     onSkinToneChange: ( skin: number ) => void;
 }
 
+const skinToneMap: { [key: number]: SkinTones } = {
+    1: SkinTones.NEUTRAL,
+    2: SkinTones.LIGHT,
+    3: SkinTones.MEDIUM_LIGHT,
+    4: SkinTones.MEDIUM,
+    5: SkinTones.MEDIUM_DARK,
+    6: SkinTones.DARK,
+};
+
 const EmojiPicker: React.FC<EmojiPickerProps> = ( {
     onEmojiSelect,
     currentSkinTone,
     onSkinToneChange
 } ) => {
-    // Initialize emoji data
-    useEffect( () => {
-        init( { data } );
-    }, [] );
+    const handleEmojiClick = ( emojiData: { emoji: string } ) => {
+        // Convert emoji-picker-react format to your app's expected format
+        onEmojiSelect( { native: emojiData.emoji } );
+    };
+
+    const handleSkinToneChange = ( skinTone: SkinTones ) => {
+        // Map the skin tone value back to your app's expected format (1-6)
+        const skinToneNumber = Object.keys( skinToneMap ).find(
+            key => skinToneMap[parseInt( key )] === skinTone
+        );
+        onSkinToneChange( skinToneNumber ? parseInt( skinToneNumber ) : 1 );
+    };
 
     return (
-        <Picker
-            data={data}
-            onEmojiSelect={onEmojiSelect}
-            theme="auto"
-            emojiSize={24}
-            previewPosition="bottom"
-            style={{ width: '100%' }}
-            skinTone={currentSkinTone}
-            onSkinToneChange={onSkinToneChange}
-            categories={["frequent", "people", "nature", "foods", "activity", "places", "objects", "symbols", "flags"]}
-            showSkinTonePicker={true}
-            skinTonePosition="preview"
-            maxFrequentRows={4}
+        <EmojiPickerReact
+            onEmojiClick={handleEmojiClick}
+            autoFocusSearch={true}
+            theme={Theme.AUTO}
+            searchPlaceholder="Search emoji"
+            defaultSkinTone={skinToneMap[currentSkinTone] || SkinTones.NEUTRAL}
+            onSkinToneChange={handleSkinToneChange}
+            emojiStyle={EmojiStyle.APPLE}
+            width="100%"
+            height="350px"
+            lazyLoadEmojis={true}
         />
     );
 };
