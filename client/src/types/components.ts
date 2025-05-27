@@ -40,7 +40,7 @@ export interface TabItem {
     icon: LucideIcon;
 
     /** Component to render inside the tab */
-    content?: FC;
+    content?: FC<{ roomId?: string }>;
 
     /** Additional CSS classes for the tab content */
     className?: string;
@@ -68,14 +68,14 @@ export interface ChatControlsProps {
     input: string;
 
     /** Function to update input */
-    setInput: (val: string) => void;    /** Handler for sending messages */
-    onSend: (content?: string) => void;
+    setInput: ( val: string ) => void;    /** Handler for sending messages */
+    onSend: ( content?: string ) => void;
 
     /** Whether the chat is connected to the server */
     isConnected?: boolean;
 
     /** Function to send typing status updates */
-    sendTyping?: (isTyping: boolean) => void;
+    sendTyping?: ( isTyping: boolean ) => void;
 }
 
 /**

@@ -3,6 +3,7 @@ import { Lock, Users, Wifi, WifiOff } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useChatState } from "@/hooks/useChatState";
 import { ChatRoomHeaderProps } from "@/types/components";
+import ChatRoomHeaderModal from "./ChatRoomHeaderModal";
 
 const ChatRoomHeader: React.FC<ChatRoomHeaderProps> = ( { roomId, isConnected, userCount } ) => {
     const { deliveryWorking } = useChatState();
@@ -61,11 +62,8 @@ const ChatRoomHeader: React.FC<ChatRoomHeaderProps> = ( { roomId, isConnected, u
                                     <div className="flex items-center text-xs text-muted-foreground">
                                         <Lock className="size-4" />
                                     </div>
-
-                                    <span
-                                        className="inline-flex items-center justify-center px-2 py-0.5 font-medium w-fit whitespace-nowrap shrink-0 text-sm m-0 text-muted-foreground hover:text-primary" >
-                                        {roomId || "xxxxxx"}
-                                    </span>
+                                    {/* Chat room modal */}
+                                    <ChatRoomHeaderModal roomId={roomId || 'XXXXXX'} />
                                 </div>
                             </TooltipTrigger>
                             <TooltipContent>
