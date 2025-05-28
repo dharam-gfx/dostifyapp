@@ -12,6 +12,7 @@ import { ReplyProvider, useReply } from "@/contexts/ReplyContext";
 import { useSocket } from "@/hooks/useSocket";
 import { useSocketNotificationSound } from "@/hooks/useSocketNotificationSound";
 import { checkRoomExists } from "@/services/roomService";
+import Loading from "@/app/loading";
 
 // Internal component that uses the ReplyContext
 const ChatRoom = () => {
@@ -77,14 +78,7 @@ const ChatRoom = () => {
 
   // Show loading screen
   if ( isLoading ) {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-zinc-50 dark:bg-zinc-950">
-        <div className="text-center space-y-4">
-          <div className="w-16 h-16 border-4 border-zinc-300 border-t-zinc-900 rounded-full animate-spin mx-auto"></div>
-          <p className="text-zinc-600 dark:text-zinc-400">Checking chat room...</p>
-        </div>
-      </div>
-    );
+    return <Loading />;
   }
 
   // Show room not found screen
@@ -124,13 +118,13 @@ const ChatRoom = () => {
             <div className="mb-2 px-4 animate-fade-in transition-all duration-300 ease-in-out">
               <TypingIndicator typingUsers={usersTyping} />
             </div>
-          )}
-          <ChatControls
+          )}          <ChatControls
             input={input}
             setInput={setInput}
             onSend={handleSendWithReply}
             sendTyping={sendTyping}
             isConnected={isConnected}
+            messages={messages}
           />
         </div>
       </div>
