@@ -10,6 +10,7 @@ import MediaButtons from './MediaButtons';
 import FileUploadButton from './FileUploadButton';
 import EmojiPicker from './EmojiPicker';
 import EmojiPickerContainer from './EmojiPickerContainer';
+import AiReplySuggestions from './AiReplySuggestions';
 
 // Export all message-related components for easy importing
 export {
@@ -24,5 +25,6 @@ export {
     MediaButtons,
     FileUploadButton,
     EmojiPicker,
-    EmojiPickerContainer
+    EmojiPickerContainer,
+    AiReplySuggestions
 };

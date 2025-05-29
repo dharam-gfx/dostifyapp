@@ -123,8 +123,12 @@ export const IncomingMessage: React.FC<IncomingMessageProps> = ( {
                 className="ml-7 mt-1"
                 showAiReply={true}
                 onAiReply={() => {
-                    // This will be implemented in the future to handle AI reply functionality
-                    console.log( "AI Reply feature coming soon!" );
+                    // Get a reference to the event for triggering AI suggestions
+                    const event = new CustomEvent( 'showAiSuggestions', {
+                        detail: { message, messageId }
+                    } );
+                    // Dispatch the event to be picked up by the ChatControls component
+                    document.dispatchEvent( event );
                 }}
             />
         </div>
