@@ -109,7 +109,7 @@ const ChatRoom = () => {
         <div className="fixed inset-x-0 top-0 z-10 mb-30 mx-auto w-full max-w-2xl">
           <ChatRoomHeader roomId={roomId} isConnected={isConnected} userCount={users.length} />
         </div>
-        <div className="flex-1 overflow-y-auto mb-32 mt-8 py-4">
+        <div className="flex-1 overflow-y-auto mb-32 pb-11 mt-8 py-4">
           <ChatFeed messages={messages} messagesEndRef={messagesEndRef} />
         </div>
 
@@ -118,13 +118,13 @@ const ChatRoom = () => {
             <div className="mb-2 px-4 animate-fade-in transition-all duration-300 ease-in-out">
               <TypingIndicator typingUsers={usersTyping} />
             </div>
-          )}          <ChatControls
+          )}
+          <ChatControls
             input={input}
             setInput={setInput}
             onSend={handleSendWithReply}
             sendTyping={sendTyping}
             isConnected={isConnected}
-            messages={messages}
           />
         </div>
       </div>

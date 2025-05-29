@@ -5,10 +5,10 @@ import { useReply } from '@/contexts/ReplyContext';
 const ReplyBar: React.FC = () => {
     const { replyInfo, clearReply } = useReply();
 
-    if (!replyInfo) return null;
+    if ( !replyInfo ) return null;
 
     return (
-        <div className="bg-zinc-100 dark:bg-zinc-800 p-2 rounded-t-lg border-b border-gray-200 dark:border-gray-700 relative">
+        <div className="bg-zinc-100 dark:bg-zinc-800 p-2 rounded-t-3xl border-b border-gray-200 dark:border-gray-700 relative">
             <div className="flex flex-col max-w-full p-1 pr-8">
                 <span className="text-xs font-medium text-rose-500">
                     Replying to {replyInfo.sender || 'Message'}
