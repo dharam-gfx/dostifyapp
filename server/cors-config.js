@@ -22,7 +22,6 @@ export const configureCors = (app) => {
       }
     },
     methods: ["GET", "POST"],
-    credentials: true
   }));
 };
 
@@ -44,6 +43,6 @@ export const socketCorsConfig = {
       }
     },
     methods: ["GET", "POST"],
-    credentials: true
-  }
+  },
+   allowEIO3: true, // Support older clients (including some mobile browsers)
 };

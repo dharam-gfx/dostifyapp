@@ -4,13 +4,16 @@
  */
 
 /**
- * Tests connectivity to the Pusher service
+ * Tests connectivity to the server
+ * @param serverUrl Optional URL to check, defaults to a general connectivity test
  * @returns Promise<boolean> True if connection test succeeded
  */
-export async function testConnectionStatus(): Promise<boolean> {
+export async function testConnectionStatus(serverUrl?: string): Promise<boolean> {
   try {
-    // We'll do a simple network check to see if we can reach Pusher's API
-    await fetch('https://pusher.com/health', { 
+    // Use provided server URL or a general connectivity test
+    const testUrl = serverUrl || 'https://www.google.com'; // Fallback to a reliable site for connectivity check
+    
+    await fetch(testUrl, { 
       method: 'HEAD',
       mode: 'no-cors',
       cache: 'no-cache'
@@ -19,7 +22,7 @@ export async function testConnectionStatus(): Promise<boolean> {
     // Since we're using no-cors mode, we won't actually get a status
     // But if the request doesn't throw an exception, the network is likely available
     return true;
-  } catch (error) {
+  } catch  {
     console.error('[ConnectionUtils] Network connectivity test failed:', error);
     return false;
   }
@@ -100,4 +103,106 @@ export function evaluateConnectionHealth(
   }
   
   return 'connected';
+}
+
+/**
+ * Gets the current network connection status of the device
+ * @returns boolean Whether the device has an internet connection based on the browser API
+ */
+export function isOnline(): boolean {
+  return navigator.onLine;
+}
+
+/**
+ * Adds event listeners to detect online/offline status changes
+ * @param onOnline Callback for when the device comes online
+ * @param onOffline Callback for when the device goes offline
+ * @returns Function to remove the event listeners
+ */
+export function listenToConnectionChanges(
+  onOnline: () => void,
+  onOffline: () => void
+): () => void {
+  window.addEventListener('online', onOnline);
+  window.addEventListener('offline', onOffline);
+  
+  return () => {
+    window.removeEventListener('online', onOnline);
+    window.removeEventListener('offline', onOffline);
+  };
+}
+
+/**
+ * Creates a keep-alive mechanism to prevent socket connections from timing out
+ * @param pingFn Function to call to keep the connection alive
+ * @param interval Interval in milliseconds (default: 25s)
+ * @returns Object with start and stop methods
+ */
+export function createKeepAlive(pingFn: () => void, interval = 25000) {
+  let keepAliveId: number | null = null;
+  
+  return {
+    start: () => {
+      if (!keepAliveId) {
+        keepAliveId = window.setInterval(() => {
+          // Only send keep-alive if document is hidden (app in background)
+          if (document.visibilityState === 'hidden') {
+            pingFn();
+          }
+        }, interval);
+      }
+    },
+    stop: () => {
+      if (keepAliveId) {
+        window.clearInterval(keepAliveId);
+        keepAliveId = null;
+      }
+    }
+  };
+}
+
+/**
+ * Detects if the user is on a mobile device
+ * @returns boolean True if the user is on a mobile device
+ */
+export function isMobileDevice(): boolean {
+  return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+}
+
+/**
+ * Detects if the device/browser is likely to have background connection limitations
+ * @returns boolean True if the device likely has connection restrictions when in background
+ */
+export function hasBackgroundConnectionLimitations(): boolean {
+  const isMobile = isMobileDevice();
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+  const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+  
+  // Safari (especially on iOS) is most aggressive about throttling background connections
+  return isMobile || isIOS || isSafari;
+}
+
+/**
+ * Monitors page visibility changes and performs actions when visibility changes
+ * @param onVisible Function to call when page becomes visible
+ * @param onHidden Function to call when page is hidden
+ * @returns Function to stop monitoring
+ */
+export function monitorPageVisibility(
+  onVisible: () => void,
+  onHidden: () => void
+): () => void {
+  const handleVisibilityChange = () => {
+    if (document.visibilityState === 'visible') {
+      onVisible();
+    } else {
+      onHidden();
+    }
+  };
+  
+  document.addEventListener('visibilitychange', handleVisibilityChange);
+  
+  return () => {
+    document.removeEventListener('visibilitychange', handleVisibilityChange);
+  };
 }

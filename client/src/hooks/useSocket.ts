@@ -1,8 +1,6 @@
 // Custom React hook for managing a Socket.IO chat connection.
 // Handles joining/leaving rooms, sending/receiving messages, user typing events, and user presence.
 // Returns all relevant state and actions for use in chat components.
-//
-// Usage: const { socket, userId, sendMessage, ... } = useSocket(roomId, userName);
 
 import { createMessageTimestamp } from "@/utils/dateUtils";
 import { encryptMessage, decryptMessage } from "@/utils/encryptionUtils";
@@ -16,7 +14,7 @@ import {
     SocketHookReturn
 } from "@/types/socket";
 
-const SERVER_URL = process.env.NEXT_PUBLIC_SERVER_URL || "http://localhost:5000"; // Use env variable for server URL
+const SERVER_URL = process.env.NEXT_PUBLIC_SERVER_URL || "http://localhost:5000";
 
 // Helper function to create a system message (e.g., join/leave notifications)
 const createSystemMessage = ( sender: string, message: string, isSent: boolean ): ChatMessage => ( {
@@ -67,10 +65,24 @@ export function useSocket( roomId: string, userName: string = "" ): SocketHookRe
     useEffect( () => {
         // Create and connect the socket
         const socketIo = io( SERVER_URL, {
-            transports: ["websocket"], // Ensures a clean WebSocket connection
+            transports: ["websocket", "polling"], // Mobile fallback
+            upgrade: true,
+            forceNew: true,
+            reconnection: true,
+            reconnectionAttempts: 5,
+            reconnectionDelay: 1000,
+            // withCredentials: true // For cross-origin cookies if needed
         } );
 
-        // Clean up stale entries from recentlyLeftUsers every minute
+        // Debugging connection issues
+        socketIo.on( "connect_error", ( err ) => {
+            console.error( "Socket connect_error:", err.message );
+        } );
+
+        socketIo.on( "connect_timeout", () => {
+            console.warn( "Socket connection timeout" );
+        } );
+
         const cleanupInterval = setInterval( () => {
             const now = Date.now();
             const staleThreshold = 60000; // 1 minute
@@ -91,10 +103,10 @@ export function useSocket( roomId: string, userName: string = "" ): SocketHookRe
             setIsConnected( true );
             setUsers( users || [] );
             // Add system message for self join
-            setMessages( prev => ( [
+            setMessages( prev => [
                 ...prev,
                 createSystemMessage( userName, `you joined the chat`, true )
-            ] ) );
+            ] );
         } );
 
         // Connection status handlers
@@ -106,10 +118,10 @@ export function useSocket( roomId: string, userName: string = "" ): SocketHookRe
             setUserEvents( e => ( { ...e, joined: joinedUser } ) );
             setUsers( users || [] );
             // Add system message for other user join
-            setMessages( prev => ( [
+            setMessages( prev => [
                 ...prev,
                 createSystemMessage( joinedUser, `${joinedUser} joined the chat`, false )
-            ] ) );
+            ] );
         } );
 
         // Handle another user leaving
@@ -128,31 +140,26 @@ export function useSocket( roomId: string, userName: string = "" ): SocketHookRe
             setMessages( prev => {
                 // Fallback: check for existing leave message
                 const alreadyLeft = prev.some(
-                    msg =>
-                        msg.type === 'system' &&
+                    msg => msg.type === 'system' &&
                         msg.sender === leftUser &&
                         msg.message === `${leftUser} left the chat`
                 );
-                if ( alreadyLeft ) {
-                    return prev;
-                }
+                if ( alreadyLeft ) return prev;
                 return [
                     ...prev,
                     createSystemMessage( leftUser, `${leftUser} left the chat`, leftUser === userIdRef.current )
                 ];
             } );
-            console.log( "User left:", leftUser, "sss", userIdRef.current );
         } );
 
         // Handle typing indicator events
         socketIo.on( "users-typing", ( { userIds }: TypingEventData ) => {
             // Only show other users as typing, not yourself
             setUsersTyping( userIds.filter( ( id: string ) => id !== socketIo.id ) );
-        } );        
-        
-        // Handle receiving a chat message
+        } );
+
         socketIo.on( "receive-message", ( { encryptedData, userId, messageId, replyTo }: MessageEventData ) => {
-            
+
             console.log( "Received encrypted message", encryptedData );
             // Decrypt the message
             const decryptedMessage = decryptMessage( encryptedData );
@@ -163,10 +170,10 @@ export function useSocket( roomId: string, userName: string = "" ): SocketHookRe
                 message: decryptMessage( replyTo.message )
             } : undefined;
 
-            setMessages( prev => ( [
+            setMessages( prev => [
                 ...prev,
                 createUserMessage( userId, decryptedMessage, false, messageId, decryptedReplyTo )
-            ] ) );
+            ] );
         } );
 
         setSocket( socketIo );
@@ -188,7 +195,6 @@ export function useSocket( roomId: string, userName: string = "" ): SocketHookRe
         replyTo?: { message: string; sender?: string; messageId?: string; }
     ) => {
         if ( socket ) {
-            // Generate a unique message ID
             const messageId = `msg_${Date.now()}_${Math.random().toString( 36 ).substr( 2, 9 )}`;
 
             // Encrypt the message before sending
@@ -209,13 +215,11 @@ export function useSocket( roomId: string, userName: string = "" ): SocketHookRe
                 messageId,
                 replyTo: encryptedReplyTo
             } );
-
             // Add unencrypted message to local state
-            setMessages( prev => ( [
+            setMessages( prev => [
                 ...prev,
                 createUserMessage( userId, message, true, messageId, replyTo )
-            ] ) );
-
+            ] );
             console.log( "Message sent" );
         }
     }, [socket] );
@@ -227,6 +231,16 @@ export function useSocket( roomId: string, userName: string = "" ): SocketHookRe
         }
     }, [socket] );
 
-    // Return all relevant state and actions for chat components
-    return { socket, userId, sendMessage, sendTyping, usersTyping, userEvents, users, isConnected, messages, setMessages };
+    return {
+        socket,
+        userId,
+        sendMessage,
+        sendTyping,
+        usersTyping,
+        userEvents,
+        users,
+        isConnected,
+        messages,
+        setMessages
+    };
 }
