@@ -22,7 +22,7 @@ export async function testConnectionStatus(serverUrl?: string): Promise<boolean>
     // Since we're using no-cors mode, we won't actually get a status
     // But if the request doesn't throw an exception, the network is likely available
     return true;
-  } catch  {
+  } catch (error) {
     console.error('[ConnectionUtils] Network connectivity test failed:', error);
     return false;
   }
