@@ -178,13 +178,24 @@ export function useSocket( roomId: string, userName: string = "" ): SocketHookRe
 
         setSocket( socketIo );
 
-        // Cleanup on unmount or dependency change
+        const handleVisibilityChange = () => {
+            if ( document.visibilityState === "visible" ) {
+                if ( socketIo && !socketIo.connected ) {
+                    console.log( "Reconnecting socket after tab became visible..." );
+                    socketIo.connect();
+                    socketIo.emit( "join-room", { roomId, userName } );
+                }
+            }
+        };
+        document.addEventListener( "visibilitychange", handleVisibilityChange );
+
         return () => {
             if ( socketIo.connected ) {
                 socketIo.emit( "leave-room", { roomId, userName } );
             }
             socketIo.disconnect();
             clearInterval( cleanupInterval );
+            document.removeEventListener( "visibilitychange", handleVisibilityChange );
         };
     }, [roomId, userName] );
 
