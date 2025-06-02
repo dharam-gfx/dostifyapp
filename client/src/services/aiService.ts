@@ -7,6 +7,14 @@ export interface AiSuggestionResponse {
 }
 
 /**
+ * Response from the AI rewrite API
+ */
+export interface AiRewriteResponse {
+    /** Rewritten text */
+    rewrittenText: string;
+}
+
+/**
  * Returns AI-generated reply suggestions based on the message content using Gemini AI
  */
 export async function getAiReplySuggestions(
@@ -44,6 +52,45 @@ export async function getAiReplySuggestions(
         // Return default suggestions on error
         return {
             suggestions: ["Thanks!", "I understand.", "Tell me more.", "Got it!", "Interesting!"]
+        };
+    }
+}
+
+/**
+ * Returns AI-rewritten text based on the input text using Gemini AI
+ */
+export async function getAiRewrittenText(
+    text: string,
+    style?: 'formal' | 'casual' | 'friendly' | 'professional'
+): Promise<AiRewriteResponse> {
+    try {
+        console.log( 'Rewriting text using Gemini AI:', text, 'style:', style || 'default' );
+
+        const response = await fetch( '/api/ai/rewrite', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify( {
+                text,
+                style
+            } ),
+        } );
+
+        if ( !response.ok ) {
+            throw new Error( 'Failed to get AI rewritten text' );
+        }
+
+        const data = await response.json();
+        return {
+            rewrittenText: data.rewrittenText || text
+        };
+    } catch ( error ) {
+        console.error( 'Error rewriting text with AI:', error );
+
+        // Return the original text on error
+        return {
+            rewrittenText: text
         };
     }
 }
