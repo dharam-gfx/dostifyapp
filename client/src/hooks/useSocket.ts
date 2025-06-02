@@ -119,7 +119,7 @@ export function useSocket( roomId: string, userName: string = "" ): SocketHookRe
         socketIo.on( "disconnect", () => {
             console.log( "Socket disconnected" );
             setIsConnected( false );
-        } ); 
+        } );
         socketIo.on( "reconnect", ( attemptNumber ) => {
             console.log( `Socket reconnected after ${attemptNumber} attempts` );
 
@@ -188,7 +188,7 @@ export function useSocket( roomId: string, userName: string = "" ): SocketHookRe
         } );
         // 🔥 Load old messages from server and decrypt
         socketIo.on( "load-old-messages", ( { messages }: LoadOldMessagesData ) => {
-            console.log( `Received load-old-messages event with ${messages?.length || 0} messages`,messages );
+            console.log( `Received load-old-messages event with ${messages?.length || 0} messages`, messages );
 
             // Safety check for messages
             if ( !messages || !Array.isArray( messages ) ) {
@@ -211,13 +211,13 @@ export function useSocket( roomId: string, userName: string = "" ): SocketHookRe
 
                 // Check if this message was sent by current user in a previous session
                 // by comparing the base username part
-                const wasCurrentUser = userNameBase && msgUserName === userNameBase;
-
-                return {
+                const wasCurrentUser = userNameBase && msgUserName === userNameBase; return {
                     type: "user" as const,
                     sender: msg.userId,
                     message: decryptMessage( msg.encryptedData ),
                     timestamp: msg.timestamp ? formatMessageTime( new Date( msg.timestamp ) ) : createMessageTimestamp(),
+                    // Store raw timestamp for comparison purposes
+                    rawTimestamp: msg.timestamp,
                     // Mark as sent by current user if username matches
                     isSent: wasCurrentUser || msg.userId === userIdRef.current,
                     messageId: msg.messageId,
@@ -231,6 +231,12 @@ export function useSocket( roomId: string, userName: string = "" ): SocketHookRe
                 };
             } );            // Merge old messages with current messages, avoiding duplicates based on messageId
             setMessages( ( prev ) => {
+                // If we don't have any messages yet, just use the received ones
+                if ( prev.length === 0 ) {
+                    console.log( "No existing messages, adding all received messages" );
+                    return [...decrypted];
+                }
+
                 // Get all existing message IDs for deduplication
                 const existingMessageIds = new Set(
                     prev.map( msg => msg.messageId ).filter( Boolean )
@@ -239,6 +245,29 @@ export function useSocket( roomId: string, userName: string = "" ): SocketHookRe
                 console.log( "Existing message count:", prev.length, prev );
                 console.log( "Received message count:", decrypted.length, decrypted );
 
+                // Check for any system messages that we should keep (like join messages)
+                const systemMessages = prev.filter( msg => msg.type === "system" &&
+                    msg.message === `you joined the chat` &&
+                    msg.timestamp.startsWith( new Date().toISOString().split( 'T' )[0] ) );
+
+                // Check if server has newer messages by comparing max timestamps
+                const prevTimestamps = prev.filter( msg => msg.type === "user" ).map( msg => new Date( msg.timestamp ).getTime() ).sort();
+                const newTimestamps = decrypted.map( msg => new Date( msg.timestamp ).getTime() ).sort();
+
+                const receivedIsNewer = newTimestamps.length > 0 &&
+                    ( prevTimestamps.length === 0 || Math.max( ...newTimestamps ) > Math.max( ...prevTimestamps ) );
+
+                console.log( "Are received messages newer?", receivedIsNewer );
+
+                // If the server has newer data or we have less messages than what's on the server
+                // Replace our message set while preserving today's system messages
+                if ( receivedIsNewer || decrypted.length > prev.filter( msg => msg.type === "user" ).length ) {
+                    // Combine server messages with our system messages
+                    console.log( "Server has newer/more messages - replacing our message set" );
+                    return [...decrypted, ...systemMessages];
+                }
+
+                // Otherwise use the normal deduplication approach
                 // Filter out messages we already have
                 const newMessages = decrypted.filter(
                     msg => !msg.messageId || !existingMessageIds.has( msg.messageId )
