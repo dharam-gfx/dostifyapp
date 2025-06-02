@@ -60,8 +60,10 @@ export function useSocket( roomId: string, userName: string = "" ): SocketHookRe
             upgrade: true,
             forceNew: true,
             reconnection: true,
-            reconnectionAttempts: 5,
-            reconnectionDelay: 1000
+            reconnectionAttempts: 10,     // More attempts
+            reconnectionDelay: 1000,
+            timeout: 10000,               // Increase timeout
+            autoConnect: true             // Ensure auto-connect is on
         } );
 
         socketIo.on( "connect_error", ( err ) => {
@@ -83,16 +85,32 @@ export function useSocket( roomId: string, userName: string = "" ): SocketHookRe
         }, 60000 );
 
         socketIo.emit( "join-room", { roomId, userName } );
-
         socketIo.on( "joined-room", ( { userId, users }: UserJoinLeaveData ) => {
+            console.log( "Joined room event received:", userId, "users:", users?.length || 0 );
             userIdRef.current = userId;
             setUserId( userId );
             setIsConnected( true );
             setUsers( users || [] );
-            setMessages( ( prev ) => [
-                ...prev,
-                createSystemMessage( userName, `you joined the chat`, true )
-            ] );
+
+            // Check if we already have a "you joined" message to avoid duplicates
+            setMessages( ( prev ) => {
+                const alreadyHasJoinedMessage = prev.some(
+                    msg => msg.type === "system" &&
+                        msg.message === `you joined the chat` &&
+                        msg.timestamp.startsWith( new Date().toISOString().split( 'T' )[0] )
+                );
+
+                if ( alreadyHasJoinedMessage ) {
+                    console.log( "Skipping duplicate 'joined' message" );
+                    return prev;
+                }
+
+                console.log( "Adding 'you joined' message" );
+                return [
+                    ...prev,
+                    createSystemMessage( userName, `you joined the chat`, true )
+                ];
+            } );
         } ); socketIo.on( "connect", () => {
             console.log( "Socket connected" );
             setIsConnected( true );
@@ -101,18 +119,19 @@ export function useSocket( roomId: string, userName: string = "" ): SocketHookRe
         socketIo.on( "disconnect", () => {
             console.log( "Socket disconnected" );
             setIsConnected( false );
-        } );
-
+        } ); 
         socketIo.on( "reconnect", ( attemptNumber ) => {
             console.log( `Socket reconnected after ${attemptNumber} attempts` );
 
             // Re-join the room after reconnection
             socketIo.emit( "join-room", { roomId, userName } );
 
-            // Request old messages after reconnection
-            setTimeout( () => {
+            // Wait for join confirmation before requesting old messages
+            socketIo.once( "joined-room", () => {
+                console.log( "Joined room confirmed after reconnect. Requesting old messages..." );
                 socketIo.emit( "request-old-messages", { roomId, userId: userIdRef.current } );
-            }, 500 );
+                console.log( "Client: requested old messages after reconnection" );
+            } );
         } );
 
         socketIo.on( "user-joined", ( { userId: joinedUser, users }: UserJoinLeaveData ) => {
@@ -169,7 +188,7 @@ export function useSocket( roomId: string, userName: string = "" ): SocketHookRe
         } );
         // 🔥 Load old messages from server and decrypt
         socketIo.on( "load-old-messages", ( { messages }: LoadOldMessagesData ) => {
-            console.log( `Received load-old-messages event with ${messages?.length || 0} messages` );
+            console.log( `Received load-old-messages event with ${messages?.length || 0} messages`,messages );
 
             // Safety check for messages
             if ( !messages || !Array.isArray( messages ) ) {
@@ -210,24 +229,29 @@ export function useSocket( roomId: string, userName: string = "" ): SocketHookRe
                         }
                         : undefined
                 };
-            } );
-
-            // Merge old messages with current messages, avoiding duplicates based on messageId
+            } );            // Merge old messages with current messages, avoiding duplicates based on messageId
             setMessages( ( prev ) => {
                 // Get all existing message IDs for deduplication
                 const existingMessageIds = new Set(
                     prev.map( msg => msg.messageId ).filter( Boolean )
                 );
 
+                console.log( "Existing message count:", prev.length );
+                console.log( "Received message count:", decrypted.length );
+
                 // Filter out messages we already have
                 const newMessages = decrypted.filter(
                     msg => !msg.messageId || !existingMessageIds.has( msg.messageId )
                 );
 
+                console.log( "New unique messages to add:", newMessages.length );
+
                 // Only add new messages
                 if ( newMessages.length > 0 ) {
+                    console.log( "Adding new messages to chat" );
                     return [...newMessages, ...prev];
                 }
+                console.log( "No new messages to add" );
                 return prev;
             } );
         } );
@@ -254,6 +278,7 @@ export function useSocket( roomId: string, userName: string = "" ): SocketHookRe
                 } else if ( socketIo && socketIo.connected ) {
                     // Already connected, just request old messages
                     console.log( "Tab visible with socket already connected. Requesting old messages" );
+                    console.log( "Current state - roomId:", roomId, "userId:", userIdRef.current, "connected:", socketIo.connected );
                     socketIo.emit( "request-old-messages", { roomId, userId: userIdRef.current } );
                     console.log( "Client: requested old messages" );
                 }

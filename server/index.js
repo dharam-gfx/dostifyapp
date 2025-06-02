@@ -72,12 +72,14 @@ io.on( 'connection', ( socket ) => {
         const targetRoomId = roomId || currentRoomId;
         // Use provided userId for logging, otherwise fall back to currentUserId
         const requestingUser = userId || currentUserId || 'Unknown user';
+          console.log("Available chat rooms:", Object.keys(chatRooms));
         
         if ( chatRooms[targetRoomId] ) {
-            console.log( `Re-sending old messages for ${requestingUser} in room ${targetRoomId}` );
+            console.log( `Re-sending ${chatRooms[targetRoomId].messages?.length || 0} old messages for ${requestingUser} in room ${targetRoomId}` );
             socket.emit( 'load-old-messages', {
                 messages: chatRooms[targetRoomId].messages || []
             } );
+            console.log( "Messages sent to client" );
         } else {
             console.log( `Cannot re-send messages: Room ${targetRoomId} not found` );
         }
