@@ -43,10 +43,6 @@ export const IncomingMessage: React.FC<IncomingMessageProps> = ( {
             }, 10 );
         }
     };
-    const handleCopyMessage = () => {
-        // Empty function since copying is now handled by MessageActions component
-        // We keep this as a placeholder for any additional logic we might want to add
-    };
 
     const handleReply = () => {
         setReplyInfo( {
@@ -82,7 +78,9 @@ export const IncomingMessage: React.FC<IncomingMessageProps> = ( {
                                 sender={replyTo.sender}
                                 messageId={replyTo.messageId}
                             />
-                        )}                        {/* Message content - now with link support for collapsed view too */}
+                        )}
+
+                        {/* Message content - now with link support for collapsed view too */}
                         <p className="text-xs pt-1 break-words whitespace-pre-line w-full">
                             {message ? (
                                 isLongMessage && !isExpanded ? (
@@ -116,11 +114,12 @@ export const IncomingMessage: React.FC<IncomingMessageProps> = ( {
                     </div>
                 </div>
             </div>
+
             {/* Action buttons now completely below bubble */}
             <MessageActions
                 isHovering={isHovering}
                 onReply={handleReply}
-                onCopy={handleCopyMessage}
+                onCopy={() => { }} // Empty function since copying is handled within MessageActions
                 message={message}
                 className="ml-7 mt-1"
                 showAiReply={true}
