@@ -119,18 +119,13 @@ export function useSocket( roomId: string, userName: string = "" ): SocketHookRe
         socketIo.on( "disconnect", () => {
             console.log( "Socket disconnected" );
             setIsConnected( false );
-        } );
-        socketIo.on( "reconnect", ( attemptNumber ) => {
+        } ); socketIo.on( "reconnect", ( attemptNumber ) => {
             console.log( `Socket reconnected after ${attemptNumber} attempts` );
-
-            // Re-join the room after reconnection
             socketIo.emit( "join-room", { roomId, userName } );
 
-            // Wait for join confirmation before requesting old messages
+            // Request messages after rejoining room
             socketIo.once( "joined-room", () => {
-                console.log( "Joined room confirmed after reconnect. Requesting old messages..." );
                 socketIo.emit( "request-old-messages", { roomId, userId: userIdRef.current } );
-                console.log( "Client: requested old messages after reconnection" );
             } );
         } );
 
@@ -170,147 +165,94 @@ export function useSocket( roomId: string, userName: string = "" ): SocketHookRe
 
         socketIo.on( "users-typing", ( { userIds }: TypingEventData ) => {
             setUsersTyping( userIds.filter( ( id ) => id !== socketIo.id ) );
-        } );
-
-        socketIo.on( "receive-message", ( { encryptedData, userId, messageId, replyTo }: MessageEventData ) => {
-            const decryptedMessage = decryptMessage( encryptedData );
-            const decryptedReplyTo = replyTo
-                ? {
-                    ...replyTo,
-                    message: decryptMessage( replyTo.message )
-                }
-                : undefined;
-
-            setMessages( ( prev ) => [
+        } ); socketIo.on( "receive-message", ( { encryptedData, userId, messageId, replyTo }: MessageEventData ) => {
+            setMessages( prev => [
                 ...prev,
-                createUserMessage( userId, decryptedMessage, false, messageId, decryptedReplyTo )
+                createUserMessage(
+                    userId,
+                    decryptMessage( encryptedData ),
+                    false,
+                    messageId,
+                    replyTo && { ...replyTo, message: decryptMessage( replyTo.message ) }
+                )
             ] );
         } );
         // 🔥 Load old messages from server and decrypt
         socketIo.on( "load-old-messages", ( { messages }: LoadOldMessagesData ) => {
-            console.log( `Received load-old-messages event with ${messages?.length || 0} messages`, messages );
+            console.log( `Received ${messages?.length || 0} old messages` );
 
-            // Safety check for messages
-            if ( !messages || !Array.isArray( messages ) ) {
-                console.error( "Invalid messages in load-old-messages event" );
-                return;
-            }
+            // Return early for invalid/empty messages
+            if ( !messages?.length || !Array.isArray( messages ) ) return;
 
-            if ( messages.length === 0 ) {
-                console.log( "No old messages to load" );
-                return;
-            }
-
-            // Extract username base from current user ID to match with previous messages
+            // Convert server messages to client format
             const userNameBase = userName.trim();
-
-            // Convert server message format to client format
-            const decrypted = messages.map( ( msg ) => {
-                // Get the base username part (before the underscore and nanoid)
-                const msgUserName = msg.userId.split( '_' )[0];
-
-                // Check if this message was sent by current user in a previous session
-                // by comparing the base username part
-                const wasCurrentUser = userNameBase && msgUserName === userNameBase; return {
-                    type: "user" as const,
-                    sender: msg.userId,
-                    message: decryptMessage( msg.encryptedData ),
-                    timestamp: msg.timestamp ? formatMessageTime( new Date( msg.timestamp ) ) : createMessageTimestamp(),
-                    // Store raw timestamp for comparison purposes
-                    rawTimestamp: msg.timestamp,
-                    // Mark as sent by current user if username matches
-                    isSent: wasCurrentUser || msg.userId === userIdRef.current,
-                    messageId: msg.messageId,
-                    replyTo: msg.replyTo
-                        ? {
-                            messageId: msg.replyTo.messageId,
-                            sender: msg.replyTo.sender,
-                            message: decryptMessage( msg.replyTo.message )
-                        }
-                        : undefined
-                };
-            } );            // Merge old messages with current messages, avoiding duplicates based on messageId
-            setMessages( ( prev ) => {
-                // If we don't have any messages yet, just use the received ones
-                if ( prev.length === 0 ) {
-                    console.log( "No existing messages, adding all received messages" );
-                    return [...decrypted];
+            const decrypted = messages.map( msg => ( {
+                type: "user" as const,
+                sender: msg.userId,
+                message: decryptMessage( msg.encryptedData ),
+                timestamp: msg.timestamp ? formatMessageTime( new Date( msg.timestamp ) ) : createMessageTimestamp(),
+                rawTimestamp: msg.timestamp,
+                isSent: ( userNameBase && msg.userId.split( '_' )[0] === userNameBase ) || msg.userId === userIdRef.current,
+                messageId: msg.messageId,
+                replyTo: msg.replyTo && {
+                    messageId: msg.replyTo.messageId,
+                    sender: msg.replyTo.sender,
+                    message: decryptMessage( msg.replyTo.message )
                 }
+            } ) );
 
-                // Get all existing message IDs for deduplication
-                const existingMessageIds = new Set(
-                    prev.map( msg => msg.messageId ).filter( Boolean )
-                );
+            // Process messages
+            setMessages( prev => {
+                // No existing messages, use all received ones
+                if ( prev.length === 0 ) return [...decrypted];
 
-                console.log( "Existing message count:", prev.length, prev );
-                console.log( "Received message count:", decrypted.length, decrypted );
-
-                // Check for any system messages that we should keep (like join messages)
-                const systemMessages = prev.filter( msg => msg.type === "system" &&
+                // Keep system messages about joining today
+                const systemMsgs = prev.filter( msg =>
+                    msg.type === "system" &&
                     msg.message === `you joined the chat` &&
-                    msg.timestamp.startsWith( new Date().toISOString().split( 'T' )[0] ) );
-
-                // Check if server has newer messages by comparing max timestamps
-                const prevTimestamps = prev.filter( msg => msg.type === "user" ).map( msg => new Date( msg.timestamp ).getTime() ).sort();
-                const newTimestamps = decrypted.map( msg => new Date( msg.timestamp ).getTime() ).sort();
-
-                const receivedIsNewer = newTimestamps.length > 0 &&
-                    ( prevTimestamps.length === 0 || Math.max( ...newTimestamps ) > Math.max( ...prevTimestamps ) );
-
-                console.log( "Are received messages newer?", receivedIsNewer );
-
-                // If the server has newer data or we have less messages than what's on the server
-                // Replace our message set while preserving today's system messages
-                if ( receivedIsNewer || decrypted.length > prev.filter( msg => msg.type === "user" ).length ) {
-                    // Combine server messages with our system messages
-                    console.log( "Server has newer/more messages - replacing our message set" );
-                    return [...decrypted, ...systemMessages];
-                }
-
-                // Otherwise use the normal deduplication approach
-                // Filter out messages we already have
-                const newMessages = decrypted.filter(
-                    msg => !msg.messageId || !existingMessageIds.has( msg.messageId )
+                    msg.timestamp.startsWith( new Date().toISOString().split( 'T' )[0] )
                 );
 
-                console.log( "New unique messages to add:", newMessages.length );
+                // Check if server has newer/more messages
+                const userMsgsCount = prev.filter( m => m.type === "user" ).length;
+                const serverHasNewerData = decrypted.length > 0 && (
+                    userMsgsCount === 0 ||
+                    decrypted.length > userMsgsCount ||
+                    Math.max( ...decrypted.map( m => new Date( m.timestamp ).getTime() ), 0 ) >
+                    Math.max( ...prev.filter( m => m.type === "user" ).map( m => new Date( m.timestamp ).getTime() ), 0 )
+                );
 
-                // Only add new messages
-                if ( newMessages.length > 0 ) {
-                    console.log( "Adding new messages to chat" );
-                    return [...newMessages, ...prev];
+                // Replace messages or add new unique ones
+                if ( serverHasNewerData ) {
+                    return [...decrypted, ...systemMsgs];
                 }
-                console.log( "No new messages to add" );
-                return prev;
+
+                // Add only messages we don't already have
+                const existingIds = new Set( prev.map( m => m.messageId ).filter( Boolean ) );
+                const newMsgs = decrypted.filter( m => !m.messageId || !existingIds.has( m.messageId ) );
+                return newMsgs.length > 0 ? [...newMsgs, ...prev] : prev;
             } );
-        } );
+        } ); setSocket( socketIo );
 
-        setSocket( socketIo );
+        // Handle visibility change to reconnect or fetch messages when tab becomes visible
         const handleVisibilityChange = () => {
-            if ( document.visibilityState === "visible" ) {
-                if ( socketIo && !socketIo.connected ) {
-                    console.log( "Tab visible but socket disconnected. Reconnecting..." );
-                    socketIo.connect();
+            if ( document.visibilityState !== "visible" || !socketIo ) return;
 
-                    // Use once to ensure this only happens on the next connection
-                    socketIo.once( "connect", () => {
-                        console.log( "Socket reconnected. Joining room..." );
-                        socketIo.emit( "join-room", { roomId, userName } );
-
-                        // Wait for join confirmation before requesting old messages
-                        socketIo.once( "joined-room", () => {
-                            console.log( "Joined room confirmed. Now requesting old messages..." );
-                            socketIo.emit( "request-old-messages", { roomId, userId: userIdRef.current } );
-                            console.log( "Client: requested old messages" );
-                        } );
+            if ( !socketIo.connected ) {
+                console.log( "Tab visible but socket disconnected. Reconnecting..." );
+                socketIo.connect();
+                socketIo.once( "connect", () => {
+                    console.log( "Socket reconnected. Joining room..." );
+                    socketIo.emit( "join-room", { roomId, userName } );
+                    socketIo.once( "joined-room", () => {
+                        console.log( "Joined room confirmed. Requesting old messages..." );
+                        socketIo.emit( "request-old-messages", { roomId, userId: userIdRef.current } );
                     } );
-                } else if ( socketIo && socketIo.connected ) {
-                    // Already connected, just request old messages
-                    console.log( "Tab visible with socket already connected. Requesting old messages" );
-                    console.log( "Current state - roomId:", roomId, "userId:", userIdRef.current, "connected:", socketIo.connected );
-                    socketIo.emit( "request-old-messages", { roomId, userId: userIdRef.current } );
-                    console.log( "Client: requested old messages" );
-                }
+                } );
+            } else {
+                // Already connected, just request old messages
+                console.log( "Tab visible with socket already connected. Requesting messages..." );
+                socketIo.emit( "request-old-messages", { roomId, userId: userIdRef.current } );
             }
         };
 
@@ -324,36 +266,22 @@ export function useSocket( roomId: string, userName: string = "" ): SocketHookRe
             clearInterval( cleanupInterval );
             document.removeEventListener( "visibilitychange", handleVisibilityChange );
         };
-    }, [roomId, userName] );
+    }, [roomId, userName] ); const sendMessage = useCallback( ( message: string, userId: string, replyTo?: { message: string; sender?: string; messageId?: string } ) => {
+        if ( !socket ) return;
 
-    const sendMessage = useCallback(
-        (
-            message: string,
-            userId: string,
-            replyTo?: { message: string; sender?: string; messageId?: string }
-        ) => {
-            if ( socket ) {
-                const messageId = `msg_${Date.now()}_${Math.random().toString( 36 ).substr( 2, 9 )}`;
-                const encryptedData = encryptMessage( message );
-                const encryptedReplyTo = replyTo
-                    ? { ...replyTo, message: encryptMessage( replyTo.message ) }
-                    : undefined;
+        const messageId = `msg_${Date.now()}_${Math.random().toString( 36 ).substr( 2, 9 )}`;
 
-                socket.emit( "send-message", {
-                    encryptedData,
-                    userId,
-                    messageId,
-                    replyTo: encryptedReplyTo
-                } );
+        // Send message to server
+        socket.emit( "send-message", {
+            encryptedData: encryptMessage( message ),
+            userId,
+            messageId,
+            replyTo: replyTo && { ...replyTo, message: encryptMessage( replyTo.message ) }
+        } );
 
-                setMessages( ( prev ) => [
-                    ...prev,
-                    createUserMessage( userId, message, true, messageId, replyTo )
-                ] );
-            }
-        },
-        [socket]
-    );
+        // Add to local messages
+        setMessages( prev => [...prev, createUserMessage( userId, message, true, messageId, replyTo )] );
+    }, [socket] );
 
     const sendTyping = useCallback(
         ( isTyping: boolean ) => {
