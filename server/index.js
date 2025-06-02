@@ -109,7 +109,17 @@ io.on( 'connection', ( socket ) => {
             } );
         } );
 
-        // Typing indicator
+        // Handler for re-requesting old messages when user comes back to the tab
+        socket.on( 'request-old-messages', ( { roomId } ) => {
+            if ( chatRooms[roomId] ) {
+                console.log( `Re-sending old messages for ${currentUserId} in room ${roomId}` );
+                socket.emit( 'load-old-messages', {
+                    messages: chatRooms[roomId].messages || []
+                } );
+            }
+        } );
+        
+        // Typing indicator        
         socket.on( 'user-typing', ( { userId, isTyping } ) => {
             if ( !typingUsers[roomId] ) typingUsers[roomId] = new Set();
             if ( isTyping ) {

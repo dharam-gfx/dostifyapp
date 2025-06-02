@@ -151,7 +151,7 @@ export function useSocket( roomId: string, userName: string = "" ): SocketHookRe
             ] );
         } );
         
-        // 🔥 Load old messages from server and decrypt
+          // 🔥 Load old messages from server and decrypt
         socketIo.on( "load-old-messages", ( { messages }: LoadOldMessagesData ) => {
             // Extract username base from current user ID to match with previous messages
             const userNameBase = userName.trim();
@@ -183,16 +183,36 @@ export function useSocket( roomId: string, userName: string = "" ): SocketHookRe
                 };
             } );
 
-            setMessages( ( prev ) => [...decrypted, ...prev] );
+            // Merge old messages with current messages, avoiding duplicates based on messageId
+            setMessages( ( prev ) => {
+                // Get all existing message IDs for deduplication
+                const existingMessageIds = new Set(
+                    prev.map( msg => msg.messageId ).filter( Boolean )
+                );
+                
+                // Filter out messages we already have
+                const newMessages = decrypted.filter( 
+                    msg => !msg.messageId || !existingMessageIds.has( msg.messageId )
+                );
+                
+                // Only add new messages
+                if ( newMessages.length > 0 ) {
+                    return [...newMessages, ...prev];
+                }
+                return prev;
+            } );
         } );
 
-        setSocket( socketIo );
-
+        setSocket( socketIo );        
         const handleVisibilityChange = () => {
             if ( document.visibilityState === "visible" ) {
                 if ( socketIo && !socketIo.connected ) {
                     socketIo.connect();
                     socketIo.emit( "join-room", { roomId, userName } );
+                } else if ( socketIo && socketIo.connected ) {
+                    // Request old messages even if the socket is already connected
+                    // This ensures messages sent while the tab was minimized are loaded
+                    socketIo.emit( "request-old-messages", { roomId } );
                 }
             }
         };
