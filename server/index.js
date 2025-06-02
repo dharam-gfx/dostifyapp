@@ -64,6 +64,24 @@ io.on( 'connection', ( socket ) => {
 
     let currentRoomId = null;
     let currentUserId = null;
+    
+    // Handler for re-requesting old messages when user comes back to the tab
+    // This handler is at the connection level so it works even after reconnection
+    socket.on( 'request-old-messages', ( { roomId, userId } ) => {
+        // Use provided roomId, if not available fall back to currentRoomId
+        const targetRoomId = roomId || currentRoomId;
+        // Use provided userId for logging, otherwise fall back to currentUserId
+        const requestingUser = userId || currentUserId || 'Unknown user';
+        
+        if ( chatRooms[targetRoomId] ) {
+            console.log( `Re-sending old messages for ${requestingUser} in room ${targetRoomId}` );
+            socket.emit( 'load-old-messages', {
+                messages: chatRooms[targetRoomId].messages || []
+            } );
+        } else {
+            console.log( `Cannot re-send messages: Room ${targetRoomId} not found` );
+        }
+    });
 
     socket.on( 'join-room', ( { roomId, userName = "User" } ) => {
         console.log( `${userName} ${socket.id} joined room ${roomId}` );
@@ -106,20 +124,9 @@ io.on( 'connection', ( socket ) => {
                 userId,
                 messageId,
                 replyTo
-            } );
-        } );
-
-        // Handler for re-requesting old messages when user comes back to the tab
-        socket.on( 'request-old-messages', ( { roomId } ) => {
-            if ( chatRooms[roomId] ) {
-                console.log( `Re-sending old messages for ${currentUserId} in room ${roomId}` );
-                socket.emit( 'load-old-messages', {
-                    messages: chatRooms[roomId].messages || []
-                } );
-            }
-        } );
+            } );        } );
         
-        // Typing indicator        
+        // Typing indicator
         socket.on( 'user-typing', ( { userId, isTyping } ) => {
             if ( !typingUsers[roomId] ) typingUsers[roomId] = new Set();
             if ( isTyping ) {
