@@ -236,8 +236,8 @@ export function useSocket( roomId: string, userName: string = "" ): SocketHookRe
                     prev.map( msg => msg.messageId ).filter( Boolean )
                 );
 
-                console.log( "Existing message count:", prev.length );
-                console.log( "Received message count:", decrypted.length );
+                console.log( "Existing message count:", prev.length, prev );
+                console.log( "Received message count:", decrypted.length, decrypted );
 
                 // Filter out messages we already have
                 const newMessages = decrypted.filter(
