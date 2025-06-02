@@ -122,10 +122,10 @@ const ChatFeed: FC<ChatFeedProps> = ( { messages, messagesEndRef } ) => {
                 className={`transition-all duration-300 ${animationClass}`}
               >
                 {chat.type === 'system' ? (
-                  <SystemMessage message={chat.message} timestamp={chat.timestamp} />
+                  <SystemMessage message={chat.message || ""} timestamp={chat.timestamp} />
                 ) : !chat.isSent ? (
                   <IncomingMessage
-                    message={chat.message}
+                    message={chat.message || ""}
                     timestamp={chat.timestamp}
                     userName={chat.sender ?? "User"}
                     messageId={chat.messageId}
@@ -133,7 +133,7 @@ const ChatFeed: FC<ChatFeedProps> = ( { messages, messagesEndRef } ) => {
                   />
                 ) : (
                   <OutgoingMessage
-                    message={chat.message}
+                    message={chat.message || ""}
                     timestamp={chat.timestamp}
                     messageId={chat.messageId}
                     replyTo={chat.replyTo}
