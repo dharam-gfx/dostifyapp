@@ -14,7 +14,7 @@ const stylePrompts: Record<string, string> = {
     default: 'Improve the clarity and engagement of the following text.',
 };
 
-const buildPrompt = ( text: string, style: string ) => `
+const buildPrompt = (text: string, style: string) => `
 You are an AI assistant that rewrites text to improve its clarity, tone, and readability.
 ${stylePrompts[style] || stylePrompts.default}
 Do not alter the original meaning or add new information.
@@ -22,7 +22,8 @@ Do not alter the original meaning or add new information.
 Text:
 "${text}"
 
-Respond only with the rewritten version, with no extra commentary or formatting.
+IMPORTANT: Respond ONLY with the rewritten text. No introductions, explanations, or formatting.
+Use the SAME LANGUAGE as the original text. Do not translate.
 `;
 
 export default async function handler( req: NextApiRequest, res: NextApiResponse<ApiResponse> ) {
