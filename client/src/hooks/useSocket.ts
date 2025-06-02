@@ -93,27 +93,27 @@ export function useSocket( roomId: string, userName: string = "" ): SocketHookRe
                 ...prev,
                 createSystemMessage( userName, `you joined the chat`, true )
             ] );
-        } );        socketIo.on( "connect", () => {
-            console.log("Socket connected");
+        } ); socketIo.on( "connect", () => {
+            console.log( "Socket connected" );
             setIsConnected( true );
-        });
-        
+        } );
+
         socketIo.on( "disconnect", () => {
-            console.log("Socket disconnected");
+            console.log( "Socket disconnected" );
             setIsConnected( false );
-        });
-        
-        socketIo.on( "reconnect", (attemptNumber) => {
-            console.log(`Socket reconnected after ${attemptNumber} attempts`);
-            
+        } );
+
+        socketIo.on( "reconnect", ( attemptNumber ) => {
+            console.log( `Socket reconnected after ${attemptNumber} attempts` );
+
             // Re-join the room after reconnection
-            socketIo.emit("join-room", { roomId, userName });
-            
+            socketIo.emit( "join-room", { roomId, userName } );
+
             // Request old messages after reconnection
-            setTimeout(() => {
-                socketIo.emit("request-old-messages", { roomId, userId: userIdRef.current });
-            }, 500);
-        });
+            setTimeout( () => {
+                socketIo.emit( "request-old-messages", { roomId, userId: userIdRef.current } );
+            }, 500 );
+        } );
 
         socketIo.on( "user-joined", ( { userId: joinedUser, users }: UserJoinLeaveData ) => {
             setUserEvents( ( e ) => ( { ...e, joined: joinedUser } ) );
@@ -165,22 +165,23 @@ export function useSocket( roomId: string, userName: string = "" ): SocketHookRe
             setMessages( ( prev ) => [
                 ...prev,
                 createUserMessage( userId, decryptedMessage, false, messageId, decryptedReplyTo )
-            ] );        } );
-          // 🔥 Load old messages from server and decrypt
+            ] );
+        } );
+        // 🔥 Load old messages from server and decrypt
         socketIo.on( "load-old-messages", ( { messages }: LoadOldMessagesData ) => {
-            console.log(`Received load-old-messages event with ${messages?.length || 0} messages`);
-            
+            console.log( `Received load-old-messages event with ${messages?.length || 0} messages` );
+
             // Safety check for messages
-            if (!messages || !Array.isArray(messages)) {
-                console.error("Invalid messages in load-old-messages event");
+            if ( !messages || !Array.isArray( messages ) ) {
+                console.error( "Invalid messages in load-old-messages event" );
                 return;
             }
-            
-            if (messages.length === 0) {
-                console.log("No old messages to load");
+
+            if ( messages.length === 0 ) {
+                console.log( "No old messages to load" );
                 return;
             }
-            
+
             // Extract username base from current user ID to match with previous messages
             const userNameBase = userName.trim();
 
@@ -217,41 +218,44 @@ export function useSocket( roomId: string, userName: string = "" ): SocketHookRe
                 const existingMessageIds = new Set(
                     prev.map( msg => msg.messageId ).filter( Boolean )
                 );
-                
+
                 // Filter out messages we already have
-                const newMessages = decrypted.filter( 
+                const newMessages = decrypted.filter(
                     msg => !msg.messageId || !existingMessageIds.has( msg.messageId )
                 );
-                
+
                 // Only add new messages
                 if ( newMessages.length > 0 ) {
                     return [...newMessages, ...prev];
                 }
                 return prev;
-            } );        } );
+            } );
+        } );
 
-        setSocket( socketIo );        
+        setSocket( socketIo );
         const handleVisibilityChange = () => {
             if ( document.visibilityState === "visible" ) {
                 if ( socketIo && !socketIo.connected ) {
-                    console.log("Tab visible but socket disconnected. Reconnecting...");
+                    console.log( "Tab visible but socket disconnected. Reconnecting..." );
                     socketIo.connect();
-                    
+
                     // Use once to ensure this only happens on the next connection
-                    socketIo.once("connect", () => {
-                        console.log("Socket reconnected. Joining room...");
-                        socketIo.emit("join-room", { roomId, userName });
-                        
-                        // Small delay to ensure server has processed the join
-                        setTimeout(() => {
-                            console.log("Requesting old messages after reconnection");
-                            socketIo.emit("request-old-messages", { roomId, userId: userIdRef.current });
-                        }, 300);
-                    });
+                    socketIo.once( "connect", () => {
+                        console.log( "Socket reconnected. Joining room..." );
+                        socketIo.emit( "join-room", { roomId, userName } );
+
+                        // Wait for join confirmation before requesting old messages
+                        socketIo.once( "joined-room", () => {
+                            console.log( "Joined room confirmed. Now requesting old messages..." );
+                            socketIo.emit( "request-old-messages", { roomId, userId: userIdRef.current } );
+                            console.log( "Client: requested old messages" );
+                        } );
+                    } );
                 } else if ( socketIo && socketIo.connected ) {
                     // Already connected, just request old messages
-                    console.log("Tab visible with socket already connected. Requesting old messages");
-                    socketIo.emit("request-old-messages", { roomId, userId: userIdRef.current });
+                    console.log( "Tab visible with socket already connected. Requesting old messages" );
+                    socketIo.emit( "request-old-messages", { roomId, userId: userIdRef.current } );
+                    console.log( "Client: requested old messages" );
                 }
             }
         };
