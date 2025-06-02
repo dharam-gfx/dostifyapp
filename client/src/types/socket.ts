@@ -44,6 +44,23 @@ export interface MessageEventData {
     };
 }
 
+// Server message format for load-old-messages
+export interface ServerMessage {
+    encryptedData: string;
+    userId: string;
+    messageId?: string;
+    timestamp?: number;
+    replyTo?: {
+        messageId?: string;
+        message: string;
+        sender?: string;
+    };
+}
+
+export interface LoadOldMessagesData {
+    messages: ServerMessage[];
+}
+
 // User events tracking
 export interface UserEvents {
     joined?: string;
@@ -59,7 +76,7 @@ export interface SocketHookReturn {
         userId: string,
         replyTo?: { message: string; sender?: string; messageId?: string; }
     ) => void;
-    sendTyping: (isTyping: boolean) => void;
+    sendTyping: ( isTyping: boolean ) => void;
     usersTyping: string[];
     userEvents: UserEvents;
     users: string[];

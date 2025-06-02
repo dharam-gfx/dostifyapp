@@ -29,7 +29,7 @@ export const IncomingMessage: React.FC<IncomingMessageProps> = ( {
 } ) => {
     const [isExpanded, setIsExpanded] = useState( false );
     const [isHovering, setIsHovering] = useState( false );
-    const messageLength = message.length;
+    const messageLength = message?.length || 0; // Add null check here
     const isLongMessage = messageLength > 150;
     const messageRef = useRef<HTMLDivElement>( null );
     const { setReplyInfo, setShouldFocusInput } = useReply();
@@ -42,10 +42,6 @@ export const IncomingMessage: React.FC<IncomingMessageProps> = ( {
                 messageRef.current?.scrollIntoView( { behavior: "smooth", block: "start" } );
             }, 10 );
         }
-    };
-    const handleCopyMessage = () => {
-        // Empty function since copying is now handled by MessageActions component
-        // We keep this as a placeholder for any additional logic we might want to add
     };
 
     const handleReply = () => {
@@ -86,12 +82,16 @@ export const IncomingMessage: React.FC<IncomingMessageProps> = ( {
 
                         {/* Message content - now with link support for collapsed view too */}
                         <p className="text-xs pt-1 break-words whitespace-pre-line w-full">
-                            {isLongMessage && !isExpanded ? (
-                                <>
-                                    {renderTextWithLinks( message.substring( 0, 150 ) )}
-                                    <span>...</span>
-                                </>
-                            ) : renderTextWithLinks( message )}
+                            {message ? (
+                                isLongMessage && !isExpanded ? (
+                                    <>
+                                        {renderTextWithLinks( message.substring( 0, 150 ) )}
+                                        <span>...</span>
+                                    </>
+                                ) : renderTextWithLinks( message )
+                            ) : (
+                                <span className="text-gray-400">[Empty message]</span>
+                            )}
                         </p>
 
                         {isLongMessage && (
@@ -114,11 +114,12 @@ export const IncomingMessage: React.FC<IncomingMessageProps> = ( {
                     </div>
                 </div>
             </div>
+
             {/* Action buttons now completely below bubble */}
             <MessageActions
                 isHovering={isHovering}
                 onReply={handleReply}
-                onCopy={handleCopyMessage}
+                onCopy={() => { }} // Empty function since copying is handled within MessageActions
                 message={message}
                 className="ml-7 mt-1"
                 showAiReply={true}

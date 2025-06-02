@@ -41,10 +41,6 @@ export const OutgoingMessage: React.FC<OutgoingMessageProps> = ( {
             }, 10 );
         }
     };
-    const handleCopyMessage = () => {
-        // Empty function since copying is now handled by MessageActions component
-        // We keep this as a placeholder for any additional logic we might want to add
-    };
 
     const handleReply = () => {
         setReplyInfo( {
@@ -112,14 +108,23 @@ export const OutgoingMessage: React.FC<OutgoingMessageProps> = ( {
                     <User className="h-4 w-4 text-gray-400 dark:text-gray-600 relative z-10" />
                 </div>
             </div>
+
             {/* Action buttons now completely below bubble, aligned to right */}
             <MessageActions
                 isHovering={isHovering}
                 onReply={handleReply}
-                onCopy={handleCopyMessage}
+                onCopy={() => { }} // Empty function since copying is handled within MessageActions
                 message={message}
                 className="mt-0.5 mr-7 justify-end"
-                showAiReply={false} // Usually don't need AI to suggest replies to our own messages
+                showAiReply={true}
+                onAiReply={() => {
+                    // Get a reference to the event for triggering AI suggestions
+                    const event = new CustomEvent( 'showAiSuggestions', {
+                        detail: { message, messageId }
+                    } );
+                    // Dispatch the event to be picked up by the ChatControls component
+                    document.dispatchEvent( event );
+                }}
             />
         </div>
     );
