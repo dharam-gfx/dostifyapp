@@ -45,7 +45,7 @@ export function UserNameModal() {
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogContent className="sm:max-w-md">
                 <DialogHeader>
-                    <DialogTitle className="text-lg font-semibold">Welcome to DostifyApp</DialogTitle>
+                    <DialogTitle className="text-lg font-semibold">Welcome to NookChat</DialogTitle>
                 </DialogHeader>
                 <div className="py-4">
                     <p className="mb-4 text-sm text-zinc-600 dark:text-zinc-400">

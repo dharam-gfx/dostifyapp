@@ -1,5 +1,5 @@
 {
-    "name": "dostifyapp-root",
+    "name": "nookchat-root",
     "private": true,
     "scripts": {
         "dev": "concurrently \"npm run dev --prefix client\" \"npm run dev --prefix server\""

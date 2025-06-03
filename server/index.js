@@ -33,7 +33,7 @@ const PORT = process.env.PORT || 5000;
 
 // Health Check
 app.get( '/', ( req, res ) => {
-    res.send( 'DostifyApp backend is running!' );
+    res.send( 'NookChat backend is running!' );
 } );
 
 // In-memory storage

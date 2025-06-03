@@ -1,22 +1,23 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  
+
   async rewrites() {
-    return [
-      {        source: '/api/:path*',
-        destination: process.env.NODE_ENV === 'production' 
-          ? process.env.SERVER_URL || 'https://dostifyapp-production.up.railway.app/api/:path*'
-          : 'http://localhost:5000/api/:path*',
-      },
-      {        source: '/socket.io/:path*',
-        destination: process.env.NODE_ENV === 'production'
-          ? 'https://dostifyapp-production.up.railway.app/socket.io/:path*'
-          : 'http://localhost:5000/socket.io/:path*',
-      }
+    return [{
+      source: '/api/:path*',
+      destination: process.env.NODE_ENV === 'production'
+        ? process.env.SERVER_URL || 'https://nookchat-production.up.railway.app/api/:path*'
+        : 'http://localhost:5000/api/:path*',
+    },
+    {
+      source: '/socket.io/:path*',
+      destination: process.env.NODE_ENV === 'production'
+        ? 'https://nookchat-production.up.railway.app/socket.io/:path*'
+        : 'http://localhost:5000/socket.io/:path*',
+    }
     ];
   },
-  
+
   // Add security headers
   async headers() {
     return [

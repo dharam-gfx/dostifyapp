@@ -144,14 +144,15 @@ function Home() {
           {/* Title and subtitle */}
           <div className="text-center space-y-2">
             <h1 className="text-3xl font-bold tracking-tight text-zinc-950 dark:text-white">
-              Dostify<span className="text-rose-500 dark:text-rose-500">App</span>
+              Nook<span className="text-rose-500 dark:text-rose-500">Chat</span>
             </h1>
             <p className="text-sm text-zinc-600 dark:text-zinc-400">
-              one-time end-to-end encrypted anonymous chats
+              A cozy, private space to chat freely
             </p>
+            
           </div>
 
-          <div className="w-full space-y-6">
+          <div className="w-full space-y-5">
             {/* Label */}
             <div className="text-center">
               <p className="text-xs text-zinc-500 dark:text-zinc-500">Join private chat</p>

@@ -1,7 +1,7 @@
 {
-  "name": "dostifyapp",
+  "name": "nookchat",
   "version": "1.0.0",
-  "description": "DostifyApp is a secure and anonymous chat app for one-time private conversations. Chat in real-time with end-to-end encryption.",
+  "description": "NookChat is a secure and anonymous chat app for one-time, end-to-end encrypted conversations. No login. No traces. Just private talk in a cozy digital nook.",
   "main": "index.js",
   "type": "module",
   "scripts": {

@@ -15,24 +15,40 @@ const geistMono = Geist_Mono( {
 } );
 
 export const metadata: Metadata = {
-  // metadataBase: new URL( "http://localhost:3000" ),
-  title: "DostifyApp - Private and Secure Chat",
-  description: "DostifyApp is a secure and anonymous chat app for one-time private conversations. Chat in real-time with end-to-end encryption.",
-  keywords: ["anonymous chat", "real-time messaging", "end-to-end encryption", "private chat", "secure messaging", "chat app", "DostifyApp"], // Ensure keywords is not null or undefined
+  metadataBase: new URL( "https://nookchat" ),
+  title: "NookChat – Private, One-Time Encrypted Chat",
+  description: "NookChat is a secure and anonymous chat app for one-time, end-to-end encrypted conversations. No login. No traces. Just private talk in a cozy digital nook.",
+  keywords: [
+    "NookChat",
+    "anonymous chat",
+    "one-time messaging",
+    "encrypted chat",
+    "private chat app",
+    "ephemeral messaging",
+    "secure conversations"
+  ], // Ensure keywords is not null or undefined
   authors: [{ name: "Dharmendra Kumar" }],
   openGraph: {
-    title: "DostifyApp - Private and Secure Chat",
-    description: "DostifyApp is a secure and anonymous chat app for one-time private conversations. Chat in real-time with end-to-end encryption.",
-    url: "",  // Replace with your actual domain
-    images: [{ url: "/public/logo-md.png" } as { url: string }], // Explicitly define 'images' as an array of objects with 'url'
-    siteName: "DostifyApp",
+    title: "NookChat – Private, One-Time Encrypted Chat",
+    description: "Step into a secure, cozy space for anonymous, end-to-end encrypted chats. Your messages vanish after the talk.",
+    url: "https://nookchat",
+    images: [{
+      url: "/logo-md.png"
+    } as { url: string }], // Explicitly define 'images'
+    siteName: "NookChat",
   },
   twitter: {
-    card: "summary_large_image",  // Large image card for Twitter
-    title: "DostifyApp - Private and Secure Chat",
-    description: "DostifyApp is a secure and anonymous chat app for one-time private conversations. Chat in real-time with end-to-end encryption.",
-    images: ["/public/logo-md.png"], // Use the same image for Twitter
+    card: "summary_large_image",
+    title: "NookChat – One-Time, Private Chat",
+    description: "A cozy and secure place for private, disappearing conversations.",
+    images: ["/public/logo-md.png"],
   },
+  icons: {
+    icon: "/favicon.ico",
+    shortcut: "/favicon.ico",
+    apple: "/logo-md.png",
+  },
+  themeColor: "#1E1E2F",
   robots: {
     index: true,              // Allow search engines to index the site
     follow: true,             // Allow search engines to follow links
@@ -69,7 +85,7 @@ export default function RootLayout( {
         <meta name="twitter:description" content={metadata.twitter?.description ?? ""} />
         <meta name="twitter:image" content={metadata.twitter?.images?.[0] ?? ""} />
 
-        <title>{String( metadata.title ?? "DostifyApp" )}</title>
+        <title>{String( metadata.title ?? "NookChat" )}</title>
 
         {/* Fonts */}
         <link rel="icon" href="/favicon.ico" />

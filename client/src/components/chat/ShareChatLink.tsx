@@ -40,7 +40,7 @@ const ShareChatLink: React.FC<ShareChatLinkProps> = ( { roomId } ) => {
         if ( navigator.share ) {
             try {
                 await navigator.share( {
-                    title: 'Join my DostifyApp chat',
+                    title: 'Join my NookChat chat',
                     text: 'Click this link to join the private chat room:',
                     url: shareUrl,
                 } );
