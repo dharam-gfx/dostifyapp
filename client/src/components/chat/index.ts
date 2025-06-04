@@ -11,6 +11,8 @@ import FileUploadButton from './FileUploadButton';
 import EmojiPicker from './EmojiPicker';
 import EmojiPickerContainer from './EmojiPickerContainer';
 import AiReplySuggestions from './AiReplySuggestions';
+import MessageAttachments from './MessageAttachments';
+import UploadedImagesPreview from './UploadedImagesPreview';
 
 // Export all message-related components for easy importing
 export {
@@ -26,5 +28,7 @@ export {
     FileUploadButton,
     EmojiPicker,
     EmojiPickerContainer,
-    AiReplySuggestions
+    AiReplySuggestions,
+    MessageAttachments,
+    UploadedImagesPreview
 };

@@ -12,9 +12,11 @@
   "license": "ISC",
   "dependencies": {
     "cors": "^2.8.5",
+    "dotenv": "^16.5.0",
     "express": "^5.1.0",
     "multer": "^1.4.5-lts.2",
     "nanoid": "^5.1.5",
+    "node-fetch": "^3.3.2",
     "nodemon": "^3.1.10",
     "socket.io": "^4.8.1"
   }

@@ -2,6 +2,8 @@ import { createMessageTimestamp, formatMessageTime } from "@/utils/dateUtils";
 import { encryptMessage, decryptMessage } from "@/utils/encryptionUtils";
 import { useEffect, useState, useRef, useCallback } from "react";
 import { io, Socket } from "socket.io-client";
+import sessionManager from "@/services/sessionManager";
+import cleanupService from "@/services/imageServices";
 import {
     ChatMessage,
     UserJoinLeaveData,
@@ -91,6 +93,12 @@ export function useSocket( roomId: string, userName: string = "" ): SocketHookRe
             setUserId( userId );
             setIsConnected( true );
             setUsers( users || [] );
+
+            // Initialize session
+            sessionManager.initSession( roomId, userId, userName, socketIo );
+
+            // Register cleanup handlers
+            cleanupService.registerCleanupHandlers();
 
             // Check if we already have a "you joined" message to avoid duplicates
             setMessages( ( prev ) => {
@@ -260,7 +268,7 @@ export function useSocket( roomId: string, userName: string = "" ): SocketHookRe
 
         return () => {
             if ( socketIo.connected ) {
-                socketIo.emit( "leave-room", { roomId, userName } );
+                cleanupService.cleanupOnLeave().catch( console.error );
             }
             socketIo.disconnect();
             clearInterval( cleanupInterval );

@@ -1,5 +1,5 @@
 import React, { RefObject } from 'react';
-import { Smile, Image as LunarImage } from "lucide-react";
+import { Smile, Sticker } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import FileUploadButton from './FileUploadButton';
 
@@ -41,7 +41,7 @@ const MediaButtons: React.FC<MediaButtonsProps> = ( {
                 className="size-8 rounded-full border bg-transparent hover:bg-accent hover:text-accent-foreground"
                 aria-label="Add GIF"
             >
-                <LunarImage className="size-4" />
+                <Sticker className="size-4" />
             </Button>
         </div>
     );

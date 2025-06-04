@@ -1,6 +1,20 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // Configure Next.js Image optimization
+  images: {
+    domains: ['localhost', 'nookchat-production.up.railway.app'],
+    remotePatterns: [
+      {
+        protocol: 'http',
+        hostname: 'localhost',
+      },
+      {
+        protocol: 'https',
+        hostname: 'nookchat-production.up.railway.app',
+      },
+    ],
+  },
 
   async rewrites() {
     return [{
