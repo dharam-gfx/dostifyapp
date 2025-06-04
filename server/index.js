@@ -1,12 +1,20 @@
 console.log( "Server is running..." );
 
 import express from "express";
-import cors from "cors";
 import http from 'http';
+import path from 'path';
+import fs from 'fs';
 import { Server } from "socket.io";
 import { nanoid } from "nanoid";
 import { configureCors, socketCorsConfig } from './cors-config.js';
 import { rateLimiter } from './middleware/rateLimiter.js';
+import dotenv from 'dotenv';
+
+// Load environment variables
+dotenv.config();
+
+// Use SERVER_URL from environment, fallback to localhost if not set
+export const SERVER_URL = process.env.SERVER_URL || 'http://localhost:5000';
 
 const app = express();
 const server = http.createServer( app );
@@ -42,8 +50,31 @@ const typingUsers = {};
 
 // API Routes
 import apiRouter from './routes/api.js';
+import imageRouter from './routes/images.js';
+
 const apiRoutes = apiRouter( chatRooms );
 app.use( '/api', apiRoutes );
+app.use( '/api/images', imageRouter );
+
+// Create necessary directories
+const UPLOADS_BASE_DIR = path.join( process.cwd(), 'uploads' );
+const SESSION_IMAGES_DIR = path.join( UPLOADS_BASE_DIR, 'sessions' );
+
+if ( !fs.existsSync( UPLOADS_BASE_DIR ) ) {
+    fs.mkdirSync( UPLOADS_BASE_DIR, { recursive: true } );
+}
+if ( !fs.existsSync( SESSION_IMAGES_DIR ) ) {
+    fs.mkdirSync( SESSION_IMAGES_DIR, { recursive: true } );
+}
+
+// Serve uploaded images statically
+app.use( '/images', express.static( UPLOADS_BASE_DIR ) );
+
+// Import image cleanup utilities
+import { cleanupSessionImages, cleanupInactiveSessions } from './utils/imageUtils/index.js';
+
+// Run a periodic cleanup job every 24 hours with configurable age (24 hours)
+setInterval( () => cleanupInactiveSessions( 24 ), 24 * 60 * 60 * 1000 );
 
 // Room/typing init
 const initializeChatRoom = ( roomId ) => {
@@ -64,7 +95,7 @@ io.on( 'connection', ( socket ) => {
 
     let currentRoomId = null;
     let currentUserId = null;
-    
+
     // Handler for re-requesting old messages when user comes back to the tab
     // This handler is at the connection level so it works even after reconnection
     socket.on( 'request-old-messages', ( { roomId, userId } ) => {
@@ -72,8 +103,8 @@ io.on( 'connection', ( socket ) => {
         const targetRoomId = roomId || currentRoomId;
         // Use provided userId for logging, otherwise fall back to currentUserId
         const requestingUser = userId || currentUserId || 'Unknown user';
-          console.log("Available chat rooms:", Object.keys(chatRooms));
-        
+        console.log( "Available chat rooms:", Object.keys( chatRooms ) );
+
         if ( chatRooms[targetRoomId] ) {
             console.log( `Re-sending ${chatRooms[targetRoomId].messages?.length || 0} old messages for ${requestingUser} in room ${targetRoomId}` );
             socket.emit( 'load-old-messages', {
@@ -83,7 +114,7 @@ io.on( 'connection', ( socket ) => {
         } else {
             console.log( `Cannot re-send messages: Room ${targetRoomId} not found` );
         }
-    });
+    } );
 
     socket.on( 'join-room', ( { roomId, userName = "User" } ) => {
         console.log( `${userName} ${socket.id} joined room ${roomId}` );
@@ -126,8 +157,9 @@ io.on( 'connection', ( socket ) => {
                 userId,
                 messageId,
                 replyTo
-            } );        } );
-        
+            } );
+        } );
+
         // Typing indicator
         socket.on( 'user-typing', ( { userId, isTyping } ) => {
             if ( !typingUsers[roomId] ) typingUsers[roomId] = new Set();
@@ -151,13 +183,16 @@ io.on( 'connection', ( socket ) => {
             typingUsers[roomId]?.delete( currentUserId );
             const usersArr = Array.from( chatRooms[roomId]?.users || [] ).map( u => u.name );
             io.to( roomId ).emit( 'user-left', { userId: currentUserId, users: usersArr } );
-            io.to( roomId ).emit( 'users-typing', { userIds: Array.from( typingUsers[roomId] || [] ) } );
-
-            if ( chatRooms[roomId]?.users.size === 0 ) {
+            io.to( roomId ).emit( 'users-typing', { userIds: Array.from( typingUsers[roomId] || [] ) } ); if ( chatRooms[roomId]?.users.size === 0 ) {
                 delete chatRooms[roomId];
                 delete typingUsers[roomId];
                 io.to( roomId ).emit( 'chat-destroyed' );
                 console.log( `Room ${roomId} destroyed` );
+
+                // Clean up any images associated with this room/session
+                cleanupSessionImages( roomId ).then( () => {
+                    console.log( `Images for room ${roomId} cleaned up` );
+                } );
             }
         } );
 
@@ -170,12 +205,15 @@ io.on( 'connection', ( socket ) => {
                 typingUsers[currentRoomId]?.delete( currentUserId );
                 const usersArr = Array.from( chatRooms[currentRoomId]?.users || [] ).map( u => u.name );
                 io.to( currentRoomId ).emit( 'user-left', { userId: currentUserId, users: usersArr } );
-                io.to( currentRoomId ).emit( 'users-typing', { userIds: Array.from( typingUsers[currentRoomId] || [] ) } );
-
-                if ( chatRooms[currentRoomId]?.users.size === 0 ) {
+                io.to( currentRoomId ).emit( 'users-typing', { userIds: Array.from( typingUsers[currentRoomId] || [] ) } ); if ( chatRooms[currentRoomId]?.users.size === 0 ) {
                     delete chatRooms[currentRoomId];
                     delete typingUsers[currentRoomId];
                     io.to( currentRoomId ).emit( 'chat-destroyed' );
+
+                    // Clean up any images associated with this room/session
+                    cleanupSessionImages( currentRoomId ).then( () => {
+                        console.log( `Images for room ${currentRoomId} cleaned up` );
+                    } );
                     console.log( `Room ${currentRoomId} destroyed` );
                 }
             }
