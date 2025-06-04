@@ -68,7 +68,7 @@ export interface ChatControlsProps {
   input: string;
 
   /** Function to update input */
-  setInput: (val: string) => void;
+  setInput: ( val: string ) => void;
 
   /** Handler for sending messages */
   onSend: () => void;
@@ -118,13 +118,13 @@ export interface UsePusherChatOptions {
   userId: string;
 
   /** Callback when users list changes */
-  onUsersChange: (users: string[] | ((prev: string[]) => string[])) => void;
+  onUsersChange: ( users: string[] | ( ( prev: string[] ) => string[] ) ) => void;
 
   /** Callback when a new message is received */
-  onMessageReceived: (message: ChatMessage, isClientEvent: boolean) => void;
+  onMessageReceived: ( message: ChatMessage, isClientEvent: boolean ) => void;
 
   /** Callback when typing status is received */
-  onTypingStatusUpdate?: (userId: string, isTyping: boolean) => void;
+  onTypingStatusUpdate?: ( userId: string, isTyping: boolean ) => void;
 }
 
 /**
@@ -154,3 +154,54 @@ export interface TypingStatusEvent {
   /** Whether the user is currently typing */
   isTyping: boolean;
 }
+
+/**
+ * Represents a message attachment (e.g., image, file)
+ */
+export interface MessageAttachment {
+  /** The type of attachment: image or file */
+  type: 'image' | 'file';
+
+  /** The URL of the attachment */
+  url: string;
+
+  /** Optional: the name of the file */
+  name?: string;
+
+  /** Optional: the size of the file in bytes */
+  size?: number;
+}
+
+/**
+ * Extracts attachments from a message string
+ * @param message - The message string to extract attachments from
+ * @returns An object containing the text of the message and an array of attachments
+ */
+export const extractAttachments = ( message: string ): { text: string; attachments: MessageAttachment[] } => {
+  const attachments: MessageAttachment[] = [];
+
+  // Regular expression to find image attachments in the format [image:url]
+  const imageRegex = /\[image:([^\]]+)\]/g;
+
+  // Extract image URLs and remove the attachment markers from the message
+  const text = message
+    .replace( imageRegex, ( match, url ) => {
+      attachments.push( {
+        type: 'image',
+        url,
+      } );
+      return '';
+    } )
+    .trim();
+
+  return { text, attachments };
+};
+
+/**
+ * Checks if a message contains attachments
+ * @param message - The message string to check
+ * @returns True if the message contains attachments, false otherwise
+ */
+export const hasAttachments = ( message: string ): boolean => {
+  return /\[(image|file):[^\]]+\]/.test( message );
+};
