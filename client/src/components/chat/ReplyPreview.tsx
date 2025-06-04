@@ -2,6 +2,8 @@ import React from 'react';
 import { useReply } from '../../contexts/ReplyContext';
 import { renderTextWithLinks } from '../../utils/textFormatUtils';
 import { ArrowUp } from 'lucide-react';
+import { extractAttachments } from '../../types/chat';
+import Image from 'next/image';
 
 interface ReplyPreviewProps {
     message: string;
@@ -14,6 +16,9 @@ interface ReplyPreviewProps {
  */
 export const ReplyPreview: React.FC<ReplyPreviewProps> = ( { message, sender, messageId } ) => {
     const { setScrollToMessageId } = useReply();
+    // Extract any image attachments from the message
+    const { text: cleanMessage, attachments } = extractAttachments( message || '' );
+    const hasImages = attachments.length > 0;
 
     const handleClick = () => {
         if ( messageId ) {
@@ -24,8 +29,8 @@ export const ReplyPreview: React.FC<ReplyPreviewProps> = ( { message, sender, me
 
     return (
         <div
-            className={`mt-1.5 bg-zinc-100 dark:bg-zinc-800 p-1.5 rounded-sm mb-1 border-l-2 border-rose-400 text-[10px] max-h-10 overflow-hidden group transition-all duration-200 
-        ${messageId ? 'cursor-pointer hover:bg-zinc-200 dark:hover:bg-zinc-700 hover:border-l-4 hover:border-rose-500' : ''}`}
+            className={`mt-1.5 bg-zinc-100 dark:bg-zinc-800 p-1.5 rounded-sm mb-1 border-l-2 border-rose-400 text-[10px] overflow-hidden group transition-all duration-200 
+        ${messageId ? 'cursor-pointer hover:bg-zinc-200 dark:hover:bg-zinc-700 hover:border-l-4 hover:border-rose-500' : ''} max-h-20`}
             onClick={messageId ? handleClick : undefined}
             title={messageId ? "Click to view original message" : ""}
         >
@@ -42,7 +47,28 @@ export const ReplyPreview: React.FC<ReplyPreviewProps> = ( { message, sender, me
                     </div>
                 )}
             </div>
-            <div className="text-zinc-600 dark:text-zinc-400 line-clamp-1">{renderTextWithLinks( message )}</div>
+            <div className="flex items-center">
+                {hasImages && (
+                    <div className="flex-shrink-0 mr-1.5">
+                        <div className="relative h-6 w-6">
+                            <Image
+                                src={attachments[0].url}
+                                alt="Image attachment"
+                                fill
+                                sizes="24px"
+                                unoptimized
+                                className="object-cover rounded-sm"
+                            />
+                        </div>
+                        {attachments.length > 1 && (
+                            <span className="text-[8px] text-zinc-500">+{attachments.length - 1}</span>
+                        )}
+                    </div>
+                )}
+                <div className="text-zinc-600 dark:text-zinc-400 line-clamp-1 flex-grow">
+                    {cleanMessage ? renderTextWithLinks( cleanMessage ) : hasImages ? '(image)' : ''}
+                </div>
+            </div>
         </div>
     );
 };

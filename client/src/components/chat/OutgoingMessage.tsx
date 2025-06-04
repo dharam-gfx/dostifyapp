@@ -4,6 +4,8 @@ import { useReply } from '../../contexts/ReplyContext';
 import { renderTextWithLinks } from '../../utils/textFormatUtils';
 import { ReplyPreview } from './ReplyPreview';
 import { MessageActions } from './MessageActions';
+import MessageAttachments from './MessageAttachments';
+import { extractAttachments } from '@/types/chat';
 
 interface OutgoingMessageProps {
     message: string;
@@ -27,7 +29,11 @@ export const OutgoingMessage: React.FC<OutgoingMessageProps> = ( {
 } ) => {
     const [isExpanded, setIsExpanded] = useState( false );
     const [isHovering, setIsHovering] = useState( false );
-    const messageLength = message.length;
+
+    // Extract attachments and clean message text
+    const { text: cleanMessage, attachments } = extractAttachments( message );
+
+    const messageLength = cleanMessage.length;
     const isLongMessage = messageLength > 150;
     const messageRef = useRef<HTMLDivElement>( null );
     const { setReplyInfo, setShouldFocusInput } = useReply();
@@ -40,11 +46,9 @@ export const OutgoingMessage: React.FC<OutgoingMessageProps> = ( {
                 messageRef.current?.scrollIntoView( { behavior: "smooth", block: "start" } );
             }, 10 );
         }
-    };
-
-    const handleReply = () => {
+    }; const handleReply = () => {
         setReplyInfo( {
-            message,
+            message: message, // Use the original message with image attachments
             sender: "You",
             messageId
         } );
@@ -74,14 +78,21 @@ export const OutgoingMessage: React.FC<OutgoingMessageProps> = ( {
                         )}
 
                         {/* Message content - now with link support for collapsed view too */}
-                        <p className="text-xs pt-1 break-words whitespace-pre-line w-full">
-                            {isLongMessage && !isExpanded ? (
-                                <>
-                                    {renderTextWithLinks( message.substring( 0, 150 ) )}
-                                    <span>...</span>
-                                </>
-                            ) : renderTextWithLinks( message )}
-                        </p>
+                        {cleanMessage && (
+                            <p className="text-xs pt-1 break-words whitespace-pre-line w-full">
+                                {isLongMessage && !isExpanded ? (
+                                    <>
+                                        {renderTextWithLinks( cleanMessage.substring( 0, 150 ) )}
+                                        <span>...</span>
+                                    </>
+                                ) : renderTextWithLinks( cleanMessage )}
+                            </p>
+                        )}
+
+                        {/* Display image attachments */}
+                        {attachments.length > 0 && (
+                            <MessageAttachments attachments={attachments} />
+                        )}
 
                         {isLongMessage && (
                             <button
@@ -120,7 +131,7 @@ export const OutgoingMessage: React.FC<OutgoingMessageProps> = ( {
                 onAiReply={() => {
                     // Get a reference to the event for triggering AI suggestions
                     const event = new CustomEvent( 'showAiSuggestions', {
-                        detail: { message, messageId }
+                        detail: { message: cleanMessage, messageId }
                     } );
                     // Dispatch the event to be picked up by the ChatControls component
                     document.dispatchEvent( event );
