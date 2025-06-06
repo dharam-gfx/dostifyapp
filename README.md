@@ -101,8 +101,11 @@ npm install
 1. Create `.env` file in the server directory with:
 
 ```
-PORT=5000
-NODE_ENV=development
+# Server Environment Variables
+
+SERVER_URL=http://localhost:5000  # Local development URL
+# SERVER_URL=https://your-production-url.com  # Uncomment for production
+
 ```
 
 ### Client Configuration
