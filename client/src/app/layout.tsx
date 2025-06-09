@@ -67,6 +67,9 @@ export default function RootLayout( {
         <meta charSet="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
+        
+        {/* Google Site Verification */}
+        <meta name="google-site-verification" content="6s1zvqQYarzATN68TYLQqk3G5xtx7d1tt7gGzm4aWzE" />
 
         {/* SEO Meta Tags */}
         <meta name="description" content={metadata.description ?? ""} />
@@ -85,7 +88,6 @@ export default function RootLayout( {
         <meta name="twitter:title" content={metadata.twitter?.title ?? ""} />
         <meta name="twitter:description" content={metadata.twitter?.description ?? ""} />
         <meta name="twitter:image" content={metadata.twitter?.images?.[0] ?? ""} />
-
         <title>{String( metadata.title ?? "NookChat" )}</title>
 
         {/* Fonts */}
@@ -96,7 +98,7 @@ export default function RootLayout( {
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <ClientLayout>{children}</ClientLayout>
-        
+
         {/* Google tag (gtag.js) */}
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-C0FQ6EPDCL"
